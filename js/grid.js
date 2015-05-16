@@ -115,3 +115,15 @@ Grid.prototype.serialize = function () {
     cells: cellState
   };
 };
+
+Grid.prototype.amountAvailable = function () {
+	var amount = 0;
+	for (var x = 0; x < this.size; x++) {
+		for (var y = 0; y < this.size; y++) {
+			if (this.cellAvailable(this.cells[x][y])) {
+				amount = amount + 1;
+			}
+		}
+	}
+	return amount;
+}

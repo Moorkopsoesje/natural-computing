@@ -270,3 +270,21 @@ GameManager.prototype.tileMatchesAvailable = function () {
 GameManager.prototype.positionsEqual = function (first, second) {
   return first.x === second.x && first.y === second.y;
 };
+
+GameManager.prototype.fitnessweights = function () {
+	// Highest number x. (2^x = value)
+	var x = Math.log2(this.storageManager.getBestScore());
+	// Amount of empty cells n.
+	var n = this.grid.amountAvailable();
+	
+	return x + n;
+};
+
+GameManager.prototype.fitnessnoweights = function () {
+	// Highest number x. (value / 100 = x)
+	var x = this.storageManager.getBestScore() / 100;
+	// Amount of empty cells n.
+	var n = this.grid.amountAvailable();
+	
+	return x + n;
+};
