@@ -347,7 +347,7 @@ GameManager.prototype.human = function() {
 		return newDirection;					
 	}
 	else if (this.lastmove == 1) {	// Right
-		newDirection = this.humanDirection(3, 0, 1, 2);
+		newDirection = this.humanDirection(0, 3, 1, 2);
 		this.lastmove = newDirection;
 		return newDirection;					
 	}
