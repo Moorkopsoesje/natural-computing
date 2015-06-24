@@ -332,25 +332,58 @@ GameManager.prototype.fitness = function(direction) {
 }
 
 // Human
-GameManager.prototype.human = function() {	
-	// TODO: check if moves are valid / possible, if not valid, change move
+GameManager.prototype.human = function() {		
+	var previousState = this.storageManager.getGameState();
+	var newDirection = -1;
+	
 	if(this.lastmove == 3) { 		// Left
-		this.lastmove = 0;
-		return 0; 					// Up
+		newDirection = this.humanDirection(0, 3, 1, 2);
+		this.lastmove = newDirection;
+		return newDirection;		
 	}
 	else if (this.lastmove == 0) { 	// Up
-		this.lastmove = 3;
-		return 3;					// Left
+		newDirection = this.humanDirection(3, 0, 1, 2);
+		this.lastmove = newDirection;
+		return newDirection;					
 	}
 	else if (this.lastmove == 1) {	// Right
-		this.lastmove = 3;
-		return 3;					// Left
+		newDirection = this.humanDirection(3, 0, 1, 2);
+		this.lastmove = newDirection;
+		return newDirection;					
 	}
 	else if (this.lastmove == 2) {	// Down
-		this.lastmove = 0;
-		return 0;					// Up
+		newDirection = this.humanDirection(0, 3, 1, 2);
+		this.lastmove = newDirection;
+		return newDirection;					
 	}
 	else {
-		return -1;					// Should not come here
+		return newDirection;		// Should not come here
 	}
 };
+
+GameManager.prototype.humanDirection = function(optionA, optionB, optionC, optionD) {
+	var previousState = this.storageManager.getGameState();
+	this.move(optionA);
+	if(previousState == this.storageManager.getGameState()) {
+		this.storageManager.setGameState(previousState);
+		this.move(optionB);
+		if(previousState == this.storageManager.getGameState()) {
+			this.storageManager.setGameState(previousState);
+			this.move(optionC);
+			if(previousState == this.storageManager.getGameState()) {
+				this.storageManager.setGameState(previousState);
+				return optionD;
+			}
+			else {
+				return optionC;
+			}
+		}
+		else {
+			return optionB;
+		}
+	}
+	else {
+		return optionA;
+	}
+		
+}
