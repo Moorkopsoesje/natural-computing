@@ -6,7 +6,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
 
   this.startTiles     = 2;
 
-  this.inputManager.on("move", this.move.bind(this));
+  //this.inputManager.on("move", this.move.bind(this));
   this.inputManager.on("restart", this.restart.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
@@ -17,6 +17,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
 GameManager.prototype.restart = function () {
   this.storageManager.clearGameState();
   this.actuator.continueGame(); // Clear the game won/lost message
+  lastmove = 0;
   this.setup();
 };
 
@@ -95,7 +96,21 @@ GameManager.prototype.actuate = function () {
     bestScore:  this.storageManager.getBestScore(),
     terminated: this.isGameTerminated()
   });
-
+  
+  // Test run (random):
+  //var direction = this.random();
+  //this.move.bind(direction);
+  
+  // Test run (greedy):
+  //var direction = this.greedy();
+  //this.move.bind(direction);
+  
+  // Test run (human):
+  console.log("Test 1")
+  var direction = this.human();
+  console.log("Test 2")
+  this.move(direction);
+  console.log("Test 3")
 };
 
 // Represent the current game as an object
@@ -128,6 +143,7 @@ GameManager.prototype.moveTile = function (tile, cell) {
 
 // Move tiles on the grid in the specified direction
 GameManager.prototype.move = function (direction) {
+	console.log("Direction is: " + direction)
   // 0: up, 1: right, 2: down, 3: left
   var self = this;
 
@@ -294,30 +310,72 @@ GameManager.prototype.fitnessnoweights = function () {
 
 // Random
 GameManager.prototype.random = function() {
-	return Math.floor((Math.random() * 4));		// returns next move, random number (0, 1, 2 or 3)
+	  var array = [0, 1, 2, 3];
+	  var m = 4;
+	  // While there remain elements to shuffle…
+	  while (m) {
+
+	    // Pick a remaining element…
+	    i = Math.floor(Math.random() * m--);
+
+	    // And swap it with the current element.
+	    t = array[m];
+	    array[m] = array[i];
+	    array[i] = t;
+	  }
+	  //console.log(array);
+	  var direction = this.preferredDirection(array[0], array[1], array[2], array[3]);
+	  //console.log("direction: " + direction)
+	  return direction; 	// returns next move, random number (0, 1, 2 or 3)
 };
 
 // Greedy
 GameManager.prototype.greedy = function() {
-	var direction = 0; 	// Initially, go up
 	// FF Up:
 	var ffup = this.fitness(0);
+	
 	// FF Right:
 	var ffright = this.fitness(1);
-	if(Math.max(ffup, ffright) == ffright) {
-		direction = 1;
-	}
+
 	// FF Down:
 	var ffdown = this.fitness(2);
-	if(Math.max(ffup, ffright, ffdown) == ffdown) {
-		direction = 2;
-	}
+
 	// FF Left:
 	var ffleft = this.fitness(3);
-	if(Math.max(ffup, ffright, ffdown, ffleft) == ffleft) {
-		direction = 3;
-	}
+	
+	var array = this.makeArray(ffup, ffright, ffdown, ffleft);
+	
+	var direction = this.preferredDirection(array[0], array[1], array[2], array[3]);
+
 	return direction;
+};
+
+GameManager.prototype.makeArray = function(up, right, down, left) {
+	directions = [up, right, down, left];
+	
+	var pos1 = Math.max(directions[0], directions[1], directions[2], directions[3]);
+	var ind1 = directions.indexOf(pos1);
+	if (ind1 > -1) {
+		directions.splice(ind1, 1);
+	}
+	
+	var pos2 = Math.max(directions[0], directions[1], directions[2]);
+	var ind2 = directions.indexOf(pos2);
+	if (ind2 > -1) {
+		directions.splice(ind2, 1);
+	}
+	
+	var pos3 = Math.max(directions[0], directions[1]);
+	var ind3 = directions.indexOf(pos3);
+	if (ind3 > -1) {
+		directions.splice(ind3, 1);
+	}
+	
+	var pos4 = directions[0];
+	
+	var array = [pos1, pos2, pos3, pos4];
+	
+	return array;
 };
 
 GameManager.prototype.fitness = function(direction) {
@@ -325,46 +383,49 @@ GameManager.prototype.fitness = function(direction) {
 	this.move(direction);
 	
 	// TODO: determine fitness function of current state
-	var fitness;
+	var fitness = 0;
 	
 	this.storageManager.setGameState(previousState);
 	return fitness;
-}
+};
+
+var lastmove = 0;
 
 // Human
 GameManager.prototype.human = function() {		
-	var previousState = this.storageManager.getGameState();
 	var newDirection = -1;
-	
-	if(this.lastmove == 3) { 		// Left
-		newDirection = this.humanDirection(0, 3, 1, 2);
-		this.lastmove = newDirection;
+	if(lastmove == 3) { 		// Left
+		newDirection = this.preferredDirection(0, 3, 1, 2);
+		lastmove = newDirection;
 		return newDirection;		
 	}
-	else if (this.lastmove == 0) { 	// Up
-		newDirection = this.humanDirection(3, 0, 1, 2);
-		this.lastmove = newDirection;
+	else if (lastmove == 0) { 	// Up
+		newDirection = this.preferredDirection(3, 0, 1, 2);
+		lastmove = newDirection;
 		return newDirection;					
 	}
-	else if (this.lastmove == 1) {	// Right
-		newDirection = this.humanDirection(0, 3, 1, 2);
-		this.lastmove = newDirection;
+	else if (lastmove == 1) {	// Right
+		newDirection = this.preferredDirection(0, 3, 1, 2);
+		lastmove = newDirection;
 		return newDirection;					
 	}
-	else if (this.lastmove == 2) {	// Down
-		newDirection = this.humanDirection(0, 3, 1, 2);
-		this.lastmove = newDirection;
+	else if (lastmove == 2) {	// Down
+		newDirection = this.preferredDirection(0, 3, 1, 2);
+		lastmove = newDirection;
 		return newDirection;					
 	}
 	else {
+		console.log("Should not come here")
 		return newDirection;		// Should not come here
 	}
 };
 
-GameManager.prototype.humanDirection = function(optionA, optionB, optionC, optionD) {
+GameManager.prototype.preferredDirection = function(optionA, optionB, optionC, optionD) {
 	var previousState = this.storageManager.getGameState();
+	console.log("Before option A")
 	this.move(optionA);
 	if(previousState == this.storageManager.getGameState()) {
+		console.log("equals")
 		this.storageManager.setGameState(previousState);
 		this.move(optionB);
 		if(previousState == this.storageManager.getGameState()) {

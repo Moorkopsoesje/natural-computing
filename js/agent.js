@@ -1,3 +1,3 @@
-function Agent(Genome) {
-	
+function Agent(genome) {
+	this.genome = genome;
 }
