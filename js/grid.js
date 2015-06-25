@@ -117,7 +117,7 @@ Grid.prototype.serialize = function () {
 };
 
 Grid.prototype.amountAvailable = function () {
-	var amount = 0;
+	/*var amount = 0;
 	for (var x = 0; x < this.size; x++) {
 		for (var y = 0; y < this.size; y++) {
 			if (this.cellAvailable(this.cells[x][y])) {
@@ -125,14 +125,18 @@ Grid.prototype.amountAvailable = function () {
 			}
 		}
 	}
-	return amount;
+	return amount;*/
+	var cells = this.availableCells();
+	//console.log(cells)
+	return cells.length;
 }
 
 Grid.prototype.highestScore = function() {
   var highscore = 0;
   for (var x = 0; x < this.size; x++) {
     for (var y = 0; y < this.size; y++) {
-      if (this.prototype.cellContent == null)
+      if (this.prototype.cellContent == null) {
+      }
       else if (this.prototype.cellContent() > highscore) {
         highscore = this.prototype.cellContent();
       }

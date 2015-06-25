@@ -56,7 +56,7 @@ GameManager.prototype.setup = function () {
   }
 
   // Update the actuator
-  this.actuate();
+  this.actuate(true);
 };
 
 // Set up the initial tiles to start the game with
@@ -77,7 +77,7 @@ GameManager.prototype.addRandomTile = function () {
 };
 
 // Sends the updated grid to the actuator
-GameManager.prototype.actuate = function () {
+GameManager.prototype.actuate = function (run) {
   if (this.storageManager.getBestScore() < this.score) {
     this.storageManager.setBestScore(this.score);
   }
@@ -97,21 +97,22 @@ GameManager.prototype.actuate = function () {
     terminated: this.isGameTerminated()
   });
   
-  // Test run (random):
-  var direction = this.random();
-  //console.log("var direction = " + direction)
-  //this.move(direction);
-  
-  // Test run (greedy):
-  //var direction = this.greedy();
-  //console.log("var direction = " + direction)
-  //this.move.bind(direction);
-  
-  // Test run (human):
-  //var direction = this.human();
-  //console.log("var direction = " + direction)
-  //this.move(direction);
-  
+  if(run && !this.over) {
+	  // Test run (random):
+	  //var direction = this.random();
+	  //console.log("var direction = " + direction)
+	  //this.move(direction);
+	  
+	  // Test run (greedy):
+	  var direction = this.greedy();
+	  //console.log("var direction = " + direction)
+	  //this.move.bind(direction);
+	  
+	  // Test run (human):
+	  //var direction = this.human();
+	  //console.log("var direction = " + direction)
+	  //this.move(direction);
+  }
   
 };
 
@@ -193,6 +194,8 @@ GameManager.prototype.move = function (direction) {
         if (!self.positionsEqual(cell, tile)) {
           moved = true; // The tile moved from its original cell!
         }
+        
+        this.actuate();
       }
     });
   });
@@ -203,9 +206,9 @@ GameManager.prototype.move = function (direction) {
     if (!this.movesAvailable()) {
       this.over = true; // Game over!
     }
-
-    this.actuate();
   }
+  
+  return moved;
 };
 
 // Get the vector representing the chosen direction
@@ -353,41 +356,53 @@ GameManager.prototype.greedy = function() {
 };
 
 GameManager.prototype.makeArray = function(up, right, down, left) {
-	directions = [up, right, down, left];
 	
+	if (up == null) {
+		up = 0;
+	}
+	if (right == null) {
+		right = 0;
+	}
+	if (down == null) {
+		down = 0;
+	}
+	if (left == null) {
+		left = 0;
+	}
+	
+	var directions = [up, right, down, left];
 	var pos1 = Math.max(directions[0], directions[1], directions[2], directions[3]);
 	var ind1 = directions.indexOf(pos1);
-	if (ind1 > -1) {
-		directions.splice(ind1, 1);
-	}
+	directions[ind1] = -1;
 	
-	var pos2 = Math.max(directions[0], directions[1], directions[2]);
+	var pos2 = Math.max(directions[0], directions[1], directions[2], directions[3]);
 	var ind2 = directions.indexOf(pos2);
-	if (ind2 > -1) {
-		directions.splice(ind2, 1);
-	}
+	directions[ind2] = -1;
 	
-	var pos3 = Math.max(directions[0], directions[1]);
+	var pos3 = Math.max(directions[0], directions[1], directions[2], directions[3]);
 	var ind3 = directions.indexOf(pos3);
-	if (ind3 > -1) {
-		directions.splice(ind3, 1);
-	}
+	directions[ind3] = -1;
 	
-	var pos4 = directions[0];
+	var pos4 = Math.max(directions[0], directions[1], directions[2], directions[3]);
+	var ind4 = directions.indexOf(pos4);
 	
-	var array = [pos1, pos2, pos3, pos4];
-	
+	var array = [ind1, ind2, ind3, ind4];
 	return array;
 };
 
 GameManager.prototype.fitness = function(direction) {
 	var previousState = this.storageManager.getGameState();
-	this.move(direction);
-	
+	var moved = this.movePossible(direction, false);
 	// TODO: determine fitness function of current state
-	var fitness = 0;
-	
-	this.storageManager.setGameState(previousState);
+	if (moved) {
+		var fitness = this.fitnessweights();
+		//console.log(fitness)
+	}
+	if(!this.over) {
+		this.grid        = new Grid(previousState.grid.size,
+		  previousState.grid.cells); // Reload grid
+		this.actuate(false);
+	}
 	return fitness;
 };
 
@@ -426,13 +441,26 @@ GameManager.prototype.preferredDirection = function(optionA, optionB, optionC, o
 	var previousState = this.storageManager.getGameState();
 	//console.log("previousState: " + previousState)
 	//this.movePossible(optionA);
-	if(!this.movePossible(optionA)) {
+	if(!this.movePossible(optionA, true)) {
 		//console.log(this.storageManager.getGameState())
-		this.storageManager.setGameState(previousState);
-		if(!this.movePossible(optionB)) {
-			this.storageManager.setGameState(previousState);
-			if(!this.movePossible(optionC)) {
-				this.storageManager.setGameState(previousState);
+		if(!this.over) {
+		  this.grid        = new Grid(previousState.grid.size,
+				  previousState.grid.cells); // Reload grid
+		  this.actuate(false);
+		}
+		if(!this.movePossible(optionB, true)) {
+			if(!this.over) {
+			  this.grid        = new Grid(previousState.grid.size,
+					  previousState.grid.cells); // Reload grid
+			  this.actuate(false);
+			}
+			if(!this.movePossible(optionC, true)) {
+				if(!this.over) {
+				  this.grid        = new Grid(previousState.grid.size,
+						  previousState.grid.cells); // Reload grid
+				  this.actuate(false);
+				}
+				this.movePossible(optionD, true);
 				return optionD;
 			}
 			else {
@@ -449,7 +477,7 @@ GameManager.prototype.preferredDirection = function(optionA, optionB, optionC, o
 };
 
 // Move tiles on the grid in the specified direction
-GameManager.prototype.movePossible = function (direction) {
+GameManager.prototype.movePossible = function (direction, run) {
   //console.log("Direction is: " + direction)
   // 0: up, 1: right, 2: down, 3: left
   var self = this;
@@ -509,7 +537,7 @@ GameManager.prototype.movePossible = function (direction) {
       this.over = true; // Game over!
     }
 
-    this.actuate();
+    this.actuate(run);
   }
   
   return moved;
