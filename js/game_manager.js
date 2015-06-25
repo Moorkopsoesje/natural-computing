@@ -11,28 +11,30 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
   // Make population
-  var populationsize = 100;
+  var populationsize = 50;
   this.population = new Population(populationsize);
 
   // Initialize strategy
   this.strategy = -1;
 
-  var iterations = 50;
+  var iterations = 25;
   
   this.evalalg(populationsize, iterations);
 
 }
 
 GameManager.prototype.evalalg = function(populationsize, iter) {
+	console.log("Start Running..")
 	// Repeat
 	for (var k = 0 ; k < iter ; k++) {
+		console.log("Iteration " + (k+1))
 		  // Each agent
 		  for (var j = 0 ; j < populationsize ; j++) {
 			  // Get Genome
 			  var agent = this.population.agents[j];
 			  this.genome = agent.genome
-			  console.log("Genome: " + this.genome.random + ", " + this.genome.greedy + ", " + this.genome.human)
-			  console.log("j = " + j)
+			  //console.log("Genome: " + this.genome.random + ", " + this.genome.greedy + ", " + this.genome.human)
+			  //console.log("j = " + j)
 			  this.strategy = this.determineStrategy(this.genome);
 			  
 			  // Get final fitness function
@@ -48,6 +50,7 @@ GameManager.prototype.evalalg = function(populationsize, iter) {
 		// this.population = this.population.update(); //?
 		this.population.update;
 	}
+	console.log("Ended")
 };
 
 GameManager.prototype.determineStrategy = function(genome) {
