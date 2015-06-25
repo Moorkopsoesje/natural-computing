@@ -16,14 +16,19 @@ function Population(size) {
 	this.size = size; // amount of agents
 }
 
+// DECLARATIONS
 // "T" for tournament, "R" for roulette wheel
 var parentmethod = "T";
 // choose tournament_size individuals from the population
-var t_size = 10; // changing this will also change implementation, be aware!
+var t_size = 10;
 // t_prob is probability of picking best from tournament, or second best, etc.
 var t_prob = 0.25;
 var c_prob = 0.1; //chance for cross-over
 
+
+/** Two algorithms for parent selection, either tournament or roulette wheel,
+depends on parentmethod.
+*/
 Population.prototype.parentselection = function() {
 	var parents = new Array(this.size);
 	// TOURNAMENT SELECTION
@@ -85,12 +90,18 @@ Population.prototype.parentselection = function() {
 	return parents;
 };
 
-// choose the best individual with prob p,
-// second best p*(1-p), third best p*((1-p)^2)
+/* Calculates probability to select nth best parent:
+Choose the best individual with prob p,
+Second best p*(1-p), third best p*((1-p)^2)
+*/
 Population.prototype.t_winner = function (n) {
 	return (t_prob * ((1-t_prob)^n));
 };
 
+
+/** Returns the parent with the highest fitness (or nth highest,
+depending on var best)
+*/
 Population.prototype.getWinner = function(pool,best) {
 	var original = pool;
 	var orderfitness = new Array(t_size);
@@ -110,6 +121,10 @@ Population.prototype.getWinner = function(pool,best) {
 	return 0;
 };
 
+/** Cross-over function
+Takes two parents and with probability c_prob slices their genes
+and recombines them to make two children
+*/
 Population.prototype.crossover(mother, father) {
 	var children = new Array(2);
 	children[0] = mother; //first copy parents
@@ -162,7 +177,9 @@ Population.prototype.crossover(mother, father) {
 	return children[0], children[1];
 }
 
-
+/** This function replaces the agents in the population by the children
+created through parent selection, cross-over and mutation
+*/
 Population.prototype.update = function() {
 	//update entire population
 	//first parent selection, then create new children
