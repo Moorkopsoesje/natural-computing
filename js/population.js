@@ -25,16 +25,16 @@ var t_prob = 0.25;
 var c_prob = 0.1; //chance for cross-over
 
 Population.prototype.parentselection = function() {
-	// Tournament selection
+	var parents = new Array(this.size);
+	// TOURNAMENT SELECTION
 	if (parentmethod == "T") {
-		var parents = new Array(this.size);
-		// Choose t_size individuals from population at random
 		for (p = 0; p < this.size; p++) {
+				// Choose t_size individuals from population at random
 				var selection = new Array(t_size);
 				for (i = 0; i < t_size; i ++) {
 					selection[i] = this.pop[Math.round(Math.random() * this.size)];
 				}
-				//picking the winner is dependent of t_size
+				// picking the winner is dependent of t_size
 				// if t_size changes, then there are more options to pick
 				// not only best, second best and third best
 				pick_prob = Math.random();
@@ -51,13 +51,38 @@ Population.prototype.parentselection = function() {
 					else total = total-this.prototype.t_winner(i);
 				}
 		}
-		// return parents
-		return parents;
 	}
-	// Roulette wheel selection
+	// ROULETTE WHEEL SELECTION
 	else if (parentmethod == "R") {
-			// still need to implement
+		var total_fitness = 0;
+		var proportional_fitness = new Array(this.size);
+		// calculate accumulative fitness
+		for (i = 0; i < this.size; i++) {
+			total_fitness = total_fitness + this.pop[i].prototype.getFitness();
+		}
+		// for each agent, calculate the proportion of total fitness
+		for (i = 0; i < this.size; i++) {
+			if (i == 0) {
+				proportional_fitness[i] = this.pop[i].prototype.getFitness()/total_fitness;
+			}
+			// each proportion has its own unique range, so add up from previous
+			else proportional_fitness[i] = proportional_fitness[i-1] + this.pop[i].prototype.getFitness()/total_fitness;
+		}
+		// for each parent, pick random nr between 0-1 and see which proportion it is
+		for (p = 0; p < this.size; p++) {
+			pick_prob = Math.random();
+			for (q = 0; q < this.size; q++) {
+				// if it's smaller, then it's in range of proportion
+				//(the first one to comply breaks the for-loop)
+				if (pick_prob < proportional_fitness[q]) {
+					parents[p] = this.pop[q];
+					break;
+				}
+			}
+		}
 	}
+	// return parents selected
+	return parents;
 };
 
 // choose the best individual with prob p,
