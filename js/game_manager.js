@@ -36,6 +36,8 @@ GameManager.prototype.evalalg = function(populationsize) {
 		  if (this.strategy != -1) {
 			  this.setup(this.strategy);
 		  }
+		  this.fitnessweights();
+		  
 	  // Adapt population based on:
 	  	// Crossover
 	  	// Mutation
