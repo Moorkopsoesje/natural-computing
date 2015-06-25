@@ -1,18 +1,18 @@
 function Population(size) {
-	var agents = new Array(size);
-	var genomes = new Array(size);
+	this.agents = new Array(size);
+	this.genomes = new Array(size);
 	for (i = 0; i < size; i++) {
 		var prob = Math.random();
 		if (prob < 0.33) {
-			genomes[i] = new Genome(1,0,0);
+			this.genomes[i] = new Genome(1,0,0);
 		}
 		else if (prob >= 0.33 && prob < 0.67) {
-			genomes[i] = new Genome(0,1,0);
+			this.genomes[i] = new Genome(0,1,0);
 		}
-		else genomes[i] = new Genome(0,0,1);
-		agents[i] = new Agent(genomes[i]);
+		else this.genomes[i] = new Genome(0,0,1);
+		this.agents[i] = new Agent(this.genomes[i]);
 	}
-	this.pop = agents;
+	this.pop = this.agents;
 	this.size = size;
 }
 
@@ -24,7 +24,7 @@ var t_prob = 0.75;
 var t_amount = this.size/t_size; // amount of tournaments
 
 Population.prototype.agent = function(index) {
-	
+	return this.agents[index];
 };
 
 Population.prototype.parentselection = function() {

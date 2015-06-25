@@ -14,6 +14,9 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   var populationsize = 100;
   this.population = new Population(populationsize);
   
+  // Each agent
+  // Get Genome
+  
   this.setup();
 }
 
@@ -103,12 +106,12 @@ GameManager.prototype.actuate = function (run) {
   
   if(run && !this.over) {
 	  // Test run (random):
-	  //var direction = this.random();
+	  var direction = this.random();
 	  //console.log("var direction = " + direction)
 	  //this.move(direction);
 	  
 	  // Test run (greedy):
-	  var direction = this.greedy();
+	  //var direction = this.greedy();
 	  //console.log("var direction = " + direction)
 	  //this.move.bind(direction);
 	  
