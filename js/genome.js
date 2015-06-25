@@ -35,3 +35,21 @@ Genome.prototype.mutation = function () {
 	this.greedy = this.greedy/normalization;
 	this.human = this.human/normalization;
 };
+
+Genome.prototype.getRandom = function() {
+	return this.random;
+}
+
+Genome.prototype.getGreedy = function() {
+	return this.greedy;
+}
+
+Genome.prototype.getHuman = function() {
+	return this.human;
+}
+
+Genome.prototype.update = function(random,greedy,human) {
+	this.random = random;
+	this.greedy = greedy;
+	this.human = human;
+}

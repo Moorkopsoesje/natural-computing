@@ -19,17 +19,17 @@ function Population(size) {
 // "T" for tournament, "R" for roulette wheel
 var parentmethod = "T";
 // choose tournament_size individuals from the population
-var t_size = 3; // changing this will also change implementation, be aware!
+var t_size = 10; // changing this will also change implementation, be aware!
 // t_prob is probability of picking best from tournament, or second best, etc.
-var t_prob = 0.75;
-var t_amount = this.size/t_size; // amount of tournaments, amount of parents
+var t_prob = 0.25;
+var c_prob = 0.1; //chance for cross-over
 
 Population.prototype.parentselection = function() {
 	// Tournament selection
 	if (parentmethod == "T") {
-		var parents = new Array(t_amount);
+		var parents = new Array(this.size);
 		// Choose t_size individuals from population at random
-		for (p = 0; p < t_amount; p++) {
+		for (p = 0; p < this.size; p++) {
 				var selection = new Array(t_size);
 				for (i = 0; i < t_size; i ++) {
 					selection[i] = this.pop[Math.round(Math.random() * this.size)];
@@ -85,10 +85,70 @@ Population.prototype.getWinner = function(pool,best) {
 	return 0;
 };
 
+Population.prototype.crossover(mother, father) {
+	var children = new Array(2);
+	children[0] = mother; //first copy parents
+	children[1] = father;
+	var r,g,h,r2,g2,h2;
+	var cross = Math.random();
+	var cross2 = Math.random();
+	//cross-over between all genes
+	if (cross < c_prob && cross2 < c_prob) {
+		 r = mother.Genome.getRandom();
+		 g = father.Genome.getGreedy();
+		 h = mother.Genome.getHuman();
+		 r2 = father.Genome.getRandom();
+		 g2 = mother.Genome.getGreedy();
+		 h2 = father.Genome.getHuman();
+	}
+	//cross-over after first gene
+	else if (cross < c_prob) {
+		r = mother.Genome.getRandom();
+		g = father.Genome.getGreedy();
+		h = father.Genome.getHuman();
+		r2 = father.Genome.random();
+		g2 = mother.Genome.getGreedy();
+		h2 = mother.Genome.getHuman();
+	}
+	//cross-over after second gene
+	else if (cross < c_prob2) {
+		r = mother.Genome.getRandom();
+		g = mother.Genome.getGreedy();
+		h = father.Genome.getHuman();
+		r2 = father.Genome.getRandom();
+		g2 = father.Genome.getGreedy();
+		h2 = mother.Genome.getHuman();
+	}
+	//no cross-over, children are same as parents
+	else {
+		return children[0], children[1];
+	}
+	//normalize so genome adds up to 1 again;
+	norm = r + g + h;
+	r = r/norm;
+	g = g/norm;
+	h = h/norm;
+	norm2 = r2 + g2 + h2;
+	r2 = r2/norm2;
+	g2 = g2/norm2;
+	h2 = h2/norm2;
+	children[0].Genome.update(r,g,h);
+	children[1].Genome.update(r2,g2,h2);
+	return children[0], children[1];
+}
 
 
 Population.prototype.update = function() {
-	//update entire population, so first parentselection, then create new children
-	var par = new Array(t_amount);
+	//update entire population
+	//first parent selection, then create new children
+	var par = new Array(this.size);
+	var children = new Array(this.size);
 	par = this.prototype.parentselection();
+	for (i = 0; i < this.size; i+2) {
+		[children[i],children[i+1]] = this.prototype.crossover(par[i],par[i+1]);
+	}
+	for (i = 0; i < this.size; i++) {
+		children[i].Genome.prototype.mutation();
+	}
+	this.pop = children; //update population
 };
