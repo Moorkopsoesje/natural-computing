@@ -1,6 +1,6 @@
-function Genome(random, alphabeta, human) {
+function Genome(random, greedy, human) {
 	this.random 	= random;
-	this.alphabeta 	= alphabeta;
+	this.greedy 	= greedy;
 	this.human 		= human;
 }
 
@@ -13,25 +13,25 @@ Genome.prototype.mutation = function () {
 		prob[i] = Math.random();
 	}
 	if (prob[0] <= mutation_prob) {
-		if (prob[1] <= 0.5) {
+		if (prob[1] < 0.5) {
 			this.random = this.random + mutation_amount;
 		}
 		else this.random = this.random - mutation_amount;
 	}
 	if (prob[2] <= mutation_prob) {
-		if (prob[3] <= 0.5) {
-			this.alphabeta = this.alphabeta + mutation_amount;
+		if (prob[3] < 0.5) {
+			this.greedy = this.greedy + mutation_amount;
 		}
-		else this.alphabeta = this.alphabeta - mutation_amount;
+		else this.greedy = this.greedy - mutation_amount;
 	}
 	if (prob[4] <= mutation_prob) {
-		if (prob[5] <= 0.5) {
+		if (prob[5] < 0.5) {
 			this.human = this.human + mutation_amount;
 		}
 		else this.human = this.human - mutation_amount;
 	}
 	var normalization = this.random + this.alphabeta + this.human;
 	this.random = this.random/normalization;
-	this.alphabeta = this.alphabeta/normalization;
+	this.greedy = this.greedy/normalization;
 	this.human = this.human/normalization;
 };
