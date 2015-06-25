@@ -23,7 +23,7 @@ var t_size = 3;
 var t_prob = 0.75;
 var t_amount = this.size/t_size; // amount of tournaments
 
-Population.prototype.agent = function(index) {
+Population.prototype.getAgent = function(index) {
 	return this.agents[index];
 };
 

@@ -13,11 +13,54 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   // Make population
   var populationsize = 100;
   this.population = new Population(populationsize);
-  
-  // Each agent
-  // Get Genome
-  
-  this.setup();
+
+  // Initialize strategy
+  this.strategy = -1;
+
+  this.evalalg(populationsize);
+
+}
+
+GameManager.prototype.evalalg = function(populationsize) {
+	console.log("Pop.size: " + populationsize)
+	  // Each agent
+	  for (var j = 0 ; j < populationsize ; j++) {
+	  // Get Genome
+		  var agent = this.population.agents[j];
+		  this.genome = agent.genome
+		  console.log("Genome: " + this.genome.random + ", " + this.genome.greedy + ", " + this.genome.human)
+		  console.log("j = " + j)
+		  this.strategy = this.determineStrategy(this.genome);
+		  
+	  // Get final fitness function
+		  if (this.strategy != -1) {
+			  this.setup(this.strategy);
+		  }
+	  // Adapt population based on:
+	  	// Crossover
+	  	// Mutation
+	  	// Parent selection
+	  }
+	  // Repeat
+};
+
+GameManager.prototype.determineStrategy = function(genome) {
+	  // Pick strategy according to genome
+	  var strat = -1;
+	  var rand = Math.random();
+	  if (rand < genome.random) {
+		  strat = 0;
+	  }
+	  else if (rand > genome.random && rand < (genome.random + genome.greedy)) {
+		  strat = 1;
+	  }
+	  else if (rand > (genome.random + genome.greedy)) {
+		  strat = 2;
+	  }
+	  else {
+		  console.log("Should not come here");
+	  }
+	  return strat;
 }
 
 // Restart the game
@@ -40,7 +83,7 @@ GameManager.prototype.isGameTerminated = function () {
 };
 
 // Set up the game
-GameManager.prototype.setup = function () {
+GameManager.prototype.setup = function (strategy) {
   var previousState = this.storageManager.getGameState();
 
   // Reload the game from a previous game if present
@@ -63,7 +106,7 @@ GameManager.prototype.setup = function () {
   }
 
   // Update the actuator
-  this.actuate(true);
+  this.actuate(true, strategy);
 };
 
 // Set up the initial tiles to start the game with
@@ -84,7 +127,16 @@ GameManager.prototype.addRandomTile = function () {
 };
 
 // Sends the updated grid to the actuator
-GameManager.prototype.actuate = function (run) {
+GameManager.prototype.actuate = function (run, strat) {
+	
+	var mapstrategy = {
+		    0: "random",
+		    1: "greedy",
+		    2: "human"
+		  };
+	
+	var strategy = mapstrategy[strat];
+	
   if (this.storageManager.getBestScore() < this.score) {
     this.storageManager.setBestScore(this.score);
   }
@@ -104,21 +156,23 @@ GameManager.prototype.actuate = function (run) {
     terminated: this.isGameTerminated()
   });
   
+  var direction;
+  
   if(run && !this.over) {
-	  // Test run (random):
-	  var direction = this.random();
-	  //console.log("var direction = " + direction)
-	  //this.move(direction);
+	  // Run (random):
+	  if (strategy == "random") {
+		  direction = this.random();  
+	  }
 	  
-	  // Test run (greedy):
-	  //var direction = this.greedy();
-	  //console.log("var direction = " + direction)
-	  //this.move.bind(direction);
+	  // Run (greedy):
+	  if (strategy == "greedy") {
+		  direction = this.greedy();
+	  }
 	  
-	  // Test run (human):
-	  //var direction = this.human();
-	  //console.log("var direction = " + direction)
-	  //this.move(direction);
+	  // Run (human):
+	  if (strategy == "human") {
+		  direction = this.human();
+	  }
   }
   
 };
@@ -544,7 +598,7 @@ GameManager.prototype.movePossible = function (direction, run) {
       this.over = true; // Game over!
     }
 
-    this.actuate(run);
+    this.actuate(run, this.determineStrategy(this.genome));
   }
   
   return moved;
