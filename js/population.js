@@ -4,31 +4,27 @@ function Population(size) {
 	for (i = 0; i < size; i++) {
 		var prob = Math.random();
 		if (prob < 0.33) {
-			this.genomes[i] = new Genome(1,0,0);
+			this.genomes[i] = new Genome(1,0,0); // 1/3rd has pure random strategy
 		}
 		else if (prob >= 0.33 && prob < 0.67) {
-			this.genomes[i] = new Genome(0,1,0);
+			this.genomes[i] = new Genome(0,1,0); // 1/3rd has pure greedy strategy
 		}
-		else this.genomes[i] = new Genome(0,0,1);
+		else this.genomes[i] = new Genome(0,0,1); // 1/3rd has pure human strategy
 		this.agents[i] = new Agent(this.genomes[i]);
 	}
-	this.pop = this.agents;
-	this.size = size;
+	this.pop = this.agents; // list of agents
+	this.size = size; // amount of agents
 }
 
 // "T" for tournament, "R" for roulette wheel
 var parentmethod = "T";
 // choose tournament_size individuals from the population
-var t_size = 3;
+var t_size = 3; // changing this will also change implementation, be aware!
+// t_prob is probability of picking best from tournament, or second best, etc.
 var t_prob = 0.75;
 var t_amount = this.size/t_size; // amount of tournaments
 
 Population.prototype.parentselection = function() {
-	// Get all fitness functions from parents
-	var fitness = new Array(this.size);
-	for (i = 0; i < this.size; i++) {
-		fitness[i] = this.pop[i].getFitness();
-	}
 	// Tournament selection
 	if (parentmethod == "T") {
 		var parents = new Array(t_amount);
@@ -38,22 +34,25 @@ Population.prototype.parentselection = function() {
 				for (i = 0; i < t_size; i ++) {
 					selection[i] = this.pop[Math.round(Math.random() * this.size)];
 				}
+				//picking the winner is dependent of t_size
+				// if t_size changes, then there are more options to pick
+				// not only best, second best and third best
 				pick_prob = Math.random();
-				if (pick_prob < this.prototype.t_winner(0)) {
-						//choose best individual
-						parents[p] = selection[this.prototype.getWinner(selection,1)];
+				var total = 1;
+				for (i = 0; i < t_size; i++) {
+					if (pick_prob >= (total-this.prototype.t_winner(i))) {
+						//choose ith best individual
+						parents[p] = selection[this.prototype.getWinner(selection,i)];
+						break;
+					}
+					// for (i+1)th best individual, prob needs be between
+					// ith best and ith+(i+1)th best
+					else total = total-this.prototype.t_winner(i);
 				}
-				else if (pick_prob >= this.prototype.t_winner(0) && pick_prob < (this.prototype.t_winner(0) + this.prototype.t_winner(1))) {
-						//choose second best
-						parents[p] = selection[this.prototype.getWinner(selection,2)];
-				}
-				else parents[p] = selection[this.prototype.getWinner(selection,3)];
-
 		}
 		// return parents
 		return parents;
 	}
-
 	// Roulette wheel selection
 	else if (parentmethod == "R") {
 			// still need to implement
@@ -67,20 +66,33 @@ Population.prototype.t_winner = function (n) {
 };
 
 Population.prototype.getWinner = function(pool,best) {
-	//still need to implement 2nd best & 3rd best!!
-	var index = -1;
-	var highest_fitness = 0;
-	for (i = 0; i < t_size; i++) {
-		if (pool[i].prototype.getFitness() > highest_fitness) {
-			index = i;
-			highest_fitness = pool[i].prototype.getFitness();
+	var original = pool;
+	var orderfitness = new Array(t_size);
+	for (j = 0; j < t_size; j++) {
+		orderfitness[j] = pool[j].prototype.getFitness();
+	}
+	var m = t_size;
+	// While there remain elements to shuffle…
+	while (m) {
+
+		// Pick a remaining element…
+		i = Math.floor(Math.random() * m--);
+
+		// And swap it with the current element.
+		temp = orderfitness[m];
+		orderfitness[m] = orderfitness[i];
+		orderfitness[i] = temp;
+	}
+	for (k = 0; k < t_size; k++) {
+		if (orderfitness[best] == original[k].prototype.getFitness()){
+			// index of pool member with nth best fitness
+			return k;
 		}
 	}
-	if (index == -1) {
-		index = Math.round(Math.random() * (t_size-1));
-	}
-	return index;
+	console.log("No corresponding agent to best fitness")
+	return 0;
 };
+
 
 
 Population.prototype.update = function() {
