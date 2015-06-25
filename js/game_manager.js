@@ -10,6 +10,10 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("restart", this.restart.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
+  // Make population
+  var populationsize = 100;
+  this.population = new Population(populationsize);
+  
   this.setup();
 }
 

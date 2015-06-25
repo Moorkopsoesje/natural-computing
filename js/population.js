@@ -23,6 +23,9 @@ var t_size = 3;
 var t_prob = 0.75;
 var t_amount = this.size/t_size; // amount of tournaments
 
+Population.prototype.agent = function(index) {
+	
+};
 
 Population.prototype.parentselection = function() {
 	// Get all fitness functions from parents
@@ -59,13 +62,13 @@ Population.prototype.parentselection = function() {
 	else if (parentmethod == "R") {
 			// still need to implement
 	}
-}
+};
 
 // choose the best individual with prob p,
 // second best p*(1-p), third best p*((1-p)^2)
 Population.prototype.t_winner = function (n) {
 	return (t_prob * ((1-t_prob)^n));
-}
+};
 
 Population.prototype.getWinner = function(pool,best) {
 	//still need to implement 2nd best & 3rd best!!
@@ -81,9 +84,9 @@ Population.prototype.getWinner = function(pool,best) {
 		index = Math.round(Math.random() * (t_size-1));
 	}
 	return index;
-}
+};
 
 
 Population.prototype.update = function() {
 	//update entire population, so first parentselection, then create new children
-}
+};
