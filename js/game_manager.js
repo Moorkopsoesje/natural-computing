@@ -98,19 +98,21 @@ GameManager.prototype.actuate = function () {
   });
   
   // Test run (random):
-  //var direction = this.random();
-  //this.move.bind(direction);
+  var direction = this.random();
+  //console.log("var direction = " + direction)
+  //this.move(direction);
   
   // Test run (greedy):
   //var direction = this.greedy();
+  //console.log("var direction = " + direction)
   //this.move.bind(direction);
   
   // Test run (human):
-  console.log("Test 1")
-  var direction = this.human();
-  console.log("Test 2")
-  this.move(direction);
-  console.log("Test 3")
+  //var direction = this.human();
+  //console.log("var direction = " + direction)
+  //this.move(direction);
+  
+  
 };
 
 // Represent the current game as an object
@@ -143,7 +145,7 @@ GameManager.prototype.moveTile = function (tile, cell) {
 
 // Move tiles on the grid in the specified direction
 GameManager.prototype.move = function (direction) {
-	console.log("Direction is: " + direction)
+   //console.log("Direction is: " + direction)
   // 0: up, 1: right, 2: down, 3: left
   var self = this;
 
@@ -422,16 +424,14 @@ GameManager.prototype.human = function() {
 
 GameManager.prototype.preferredDirection = function(optionA, optionB, optionC, optionD) {
 	var previousState = this.storageManager.getGameState();
-	console.log("Before option A")
-	this.move(optionA);
-	if(previousState == this.storageManager.getGameState()) {
-		console.log("equals")
+	//console.log("previousState: " + previousState)
+	//this.movePossible(optionA);
+	if(!this.movePossible(optionA)) {
+		//console.log(this.storageManager.getGameState())
 		this.storageManager.setGameState(previousState);
-		this.move(optionB);
-		if(previousState == this.storageManager.getGameState()) {
+		if(!this.movePossible(optionB)) {
 			this.storageManager.setGameState(previousState);
-			this.move(optionC);
-			if(previousState == this.storageManager.getGameState()) {
+			if(!this.movePossible(optionC)) {
 				this.storageManager.setGameState(previousState);
 				return optionD;
 			}
@@ -446,5 +446,71 @@ GameManager.prototype.preferredDirection = function(optionA, optionB, optionC, o
 	else {
 		return optionA;
 	}
-		
-}
+};
+
+// Move tiles on the grid in the specified direction
+GameManager.prototype.movePossible = function (direction) {
+  //console.log("Direction is: " + direction)
+  // 0: up, 1: right, 2: down, 3: left
+  var self = this;
+
+  if (this.isGameTerminated()) return; // Don't do anything if the game's over
+
+  var cell, tile;
+
+  var vector     = this.getVector(direction);
+  var traversals = this.buildTraversals(vector);
+  var moved      = false;
+
+  // Save the current tile positions and remove merger information
+  this.prepareTiles();
+
+  // Traverse the grid in the right direction and move tiles
+  traversals.x.forEach(function (x) {
+    traversals.y.forEach(function (y) {
+      cell = { x: x, y: y };
+      tile = self.grid.cellContent(cell);
+
+      if (tile) {
+        var positions = self.findFarthestPosition(cell, vector);
+        var next      = self.grid.cellContent(positions.next);
+
+        // Only one merger per row traversal?
+        if (next && next.value === tile.value && !next.mergedFrom) {
+          var merged = new Tile(positions.next, tile.value * 2);
+          merged.mergedFrom = [tile, next];
+
+          self.grid.insertTile(merged);
+          self.grid.removeTile(tile);
+
+          // Converge the two tiles' positions
+          tile.updatePosition(positions.next);
+
+          // Update the score
+          self.score += merged.value;
+
+          // The mighty 2048 tile
+          if (merged.value === 2048) self.won = true;
+        } else {
+          self.moveTile(tile, positions.farthest);
+        }
+
+        if (!self.positionsEqual(cell, tile)) {
+          moved = true; // The tile moved from its original cell!
+        }
+      }
+    });
+  });
+  
+  if (moved) {
+    this.addRandomTile();
+
+    if (!this.movesAvailable()) {
+      this.over = true; // Game over!
+    }
+
+    this.actuate();
+  }
+  
+  return moved;
+};
