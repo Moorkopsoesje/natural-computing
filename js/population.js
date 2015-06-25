@@ -23,10 +23,6 @@ var t_size = 3;
 var t_prob = 0.75;
 var t_amount = this.size/t_size; // amount of tournaments
 
-Population.prototype.getAgent = function(index) {
-	return this.agents[index];
-};
-
 Population.prototype.parentselection = function() {
 	// Get all fitness functions from parents
 	var fitness = new Array(this.size);

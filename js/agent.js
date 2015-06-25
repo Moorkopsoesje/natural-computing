@@ -11,7 +11,3 @@ Agent.prototype.update = function (grid) {
 	this.highscore = grid.prototype.highestScore();
 	this.amountmoves = this.amountmoves + 1;
 };
-
-Agent.prototype.getGenome = function() {
-	return this.genome;
-};

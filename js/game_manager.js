@@ -17,33 +17,37 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   // Initialize strategy
   this.strategy = -1;
 
-  this.evalalg(populationsize);
+  var iterations = 50;
+  
+  this.evalalg(populationsize, iterations);
 
 }
 
-GameManager.prototype.evalalg = function(populationsize) {
-	console.log("Pop.size: " + populationsize)
-	  // Each agent
-	  for (var j = 0 ; j < populationsize ; j++) {
-	  // Get Genome
-		  var agent = this.population.agents[j];
-		  this.genome = agent.genome
-		  console.log("Genome: " + this.genome.random + ", " + this.genome.greedy + ", " + this.genome.human)
-		  console.log("j = " + j)
-		  this.strategy = this.determineStrategy(this.genome);
-		  
-	  // Get final fitness function
-		  if (this.strategy != -1) {
-			  this.setup(this.strategy);
+GameManager.prototype.evalalg = function(populationsize, iter) {
+	// Repeat
+	for (var k = 0 ; k < iter ; k++) {
+		  // Each agent
+		  for (var j = 0 ; j < populationsize ; j++) {
+			  // Get Genome
+			  var agent = this.population.agents[j];
+			  this.genome = agent.genome
+			  console.log("Genome: " + this.genome.random + ", " + this.genome.greedy + ", " + this.genome.human)
+			  console.log("j = " + j)
+			  this.strategy = this.determineStrategy(this.genome);
+			  
+			  // Get final fitness function
+			  if (this.strategy != -1) {
+				  this.setup(this.strategy);
+			  }
+			  this.fitnessweights();
 		  }
-		  this.fitnessweights();
-		  
 	  // Adapt population based on:
 	  	// Crossover
 	  	// Mutation
 	  	// Parent selection
-	  }
-	  // Repeat
+		// this.population = this.population.update(); //?
+		this.population.update;
+	}
 };
 
 GameManager.prototype.determineStrategy = function(genome) {
@@ -384,7 +388,7 @@ GameManager.prototype.random = function() {
 	  while (m) {
 
 	    // Pick a remaining element…
-	    i = Math.floor(Math.random() * m--);
+	    var i = Math.floor(Math.random() * m--);
 
 	    // And swap it with the current element.
 	    t = array[m];
