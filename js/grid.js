@@ -127,3 +127,16 @@ Grid.prototype.amountAvailable = function () {
 	}
 	return amount;
 }
+
+Grid.prototype.highestScore = function() {
+  var highscore = 0;
+  for (var x = 0; x < this.size; x++) {
+    for (var y = 0; y < this.size; y++) {
+      if (this.prototype.cellContent == null)
+      else if (this.prototype.cellContent() > highscore) {
+        highscore = this.prototype.cellContent();
+      }
+    }
+  }
+  return highscore;
+}
