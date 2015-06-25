@@ -22,7 +22,7 @@ var parentmethod = "T";
 var t_size = 3; // changing this will also change implementation, be aware!
 // t_prob is probability of picking best from tournament, or second best, etc.
 var t_prob = 0.75;
-var t_amount = this.size/t_size; // amount of tournaments
+var t_amount = this.size/t_size; // amount of tournaments, amount of parents
 
 Population.prototype.parentselection = function() {
 	// Tournament selection
@@ -40,6 +40,7 @@ Population.prototype.parentselection = function() {
 				pick_prob = Math.random();
 				var total = 1;
 				for (i = 0; i < t_size; i++) {
+					// probability of choosing ith best individual
 					if (pick_prob >= (total-this.prototype.t_winner(i))) {
 						//choose ith best individual
 						parents[p] = selection[this.prototype.getWinner(selection,i)];
@@ -71,19 +72,10 @@ Population.prototype.getWinner = function(pool,best) {
 	for (j = 0; j < t_size; j++) {
 		orderfitness[j] = pool[j].prototype.getFitness();
 	}
-	var m = t_size;
-	// While there remain elements to shuffle…
-	while (m) {
-
-		// Pick a remaining element…
-		i = Math.floor(Math.random() * m--);
-
-		// And swap it with the current element.
-		temp = orderfitness[m];
-		orderfitness[m] = orderfitness[i];
-		orderfitness[i] = temp;
-	}
+	// sort fitness based on high first, low last
+	orderfitness.sort(function(a, b){return b-a});
 	for (k = 0; k < t_size; k++) {
+		// compare which original agent had the nth best fitness
 		if (orderfitness[best] == original[k].prototype.getFitness()){
 			// index of pool member with nth best fitness
 			return k;
@@ -97,4 +89,6 @@ Population.prototype.getWinner = function(pool,best) {
 
 Population.prototype.update = function() {
 	//update entire population, so first parentselection, then create new children
+	var par = new Array(t_amount);
+	par = this.prototype.parentselection();
 };
