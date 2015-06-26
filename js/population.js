@@ -10,7 +10,6 @@ function Population(size) {
 		}
 		else this.agents[i] = new Agent(new Genome(0,0,1)); // 1/3rd has pure human strategy
 	}
-	this.pop = this.agents; // list of agents
 	this.size = size; // amount of agents
 }
 
@@ -35,7 +34,7 @@ Population.prototype.parentselection = function() {
 				// Choose t_size individuals from population at random
 				var selection = new Array(t_size);
 				for (i = 0; i < t_size; i ++) {
-					selection[i] = this.pop[Math.round(Math.random() * this.size)];
+					selection[i] = this.agents[Math.round(Math.random() * this.size)];
 				}
 				// picking the winner is dependent of t_size
 				// if t_size changes, then there are more options to pick
@@ -61,15 +60,15 @@ Population.prototype.parentselection = function() {
 		var proportional_fitness = new Array(this.size);
 		// calculate accumulative fitness
 		for (i = 0; i < this.size; i++) {
-			total_fitness = total_fitness + this.pop[i].prototype.getFitness();
+			total_fitness = total_fitness + this.agents[i].prototype.getFitness();
 		}
 		// for each agent, calculate the proportion of total fitness
 		for (i = 0; i < this.size; i++) {
 			if (i == 0) {
-				proportional_fitness[i] = this.pop[i].prototype.getFitness()/total_fitness;
+				proportional_fitness[i] = this.agents[i].prototype.getFitness()/total_fitness;
 			}
 			// each proportion has its own unique range, so add up from previous
-			else proportional_fitness[i] = proportional_fitness[i-1] + this.pop[i].prototype.getFitness()/total_fitness;
+			else proportional_fitness[i] = proportional_fitness[i-1] + this.agents[i].prototype.getFitness()/total_fitness;
 		}
 		// for each parent, pick random nr between 0-1 and see which proportion it is
 		for (p = 0; p < this.size; p++) {
@@ -78,7 +77,7 @@ Population.prototype.parentselection = function() {
 				// if it's smaller, then it's in range of proportion
 				//(the first one to comply breaks the for-loop)
 				if (pick_prob < proportional_fitness[q]) {
-					parents[p] = this.pop[q];
+					parents[p] = this.agents[q];
 					break;
 				}
 			}
@@ -190,5 +189,5 @@ Population.prototype.update = function() {
 	for (i = 0; i < this.size; i++) {
 		children[i].Genome.prototype.mutation();
 	}
-	this.pop = children; //update population
+	this.agents = children; //update population
 };
