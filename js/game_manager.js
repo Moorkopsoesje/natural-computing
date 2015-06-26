@@ -17,6 +17,10 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   // Initialize fitness
   this.fitnessscore = 0;
   
+  // Initialize depth
+  this.depth = 0;
+  this.depthnormalizer = 40;
+  
   // Initialize strategy
   this.strategy = -1;
 
@@ -117,6 +121,9 @@ GameManager.prototype.isGameTerminated = function () {
 GameManager.prototype.setup = function (strategy) {
   var previousState = this.storageManager.getGameState();
 
+  // For each new game, set depth back to 0
+  this.depth = 0;
+  
   // Reload the game from a previous game if present
   if (previousState) {
     this.grid        = new Grid(previousState.grid.size,
@@ -204,6 +211,8 @@ GameManager.prototype.actuate = function (run, strat) {
 	  if (str == "human") {
 		  direction = this.human();
 	  }
+	  this.depth = this.depth + 1;
+	  console.log(this.depth)
   }
   
 };
@@ -389,7 +398,8 @@ GameManager.prototype.fitnessweights = function () {
 	var x = Math.log2(this.grid.highestScore());
 	// Amount of empty cells n.
 	var n = this.grid.amountAvailable();
-	//console.log("X: " + x + ", N: " + n)
+	// Depth of path
+	var d = this.depth / this.depthnormalizer;
 	return x + n;
 };
 
