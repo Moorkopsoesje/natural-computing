@@ -238,7 +238,7 @@ Population.prototype.update = function() {
 	//first parent selection, then create new children
 	var par = new Array(this.size);
 	var children = new Array(this.size);
-	for (i = 0; i < this.size; i = i+2) {
+	for (i = 0; i < this.size; i = i++) {
 		children[i] = new Agent(new Genome(-1,-1,-1));
 	}
 	console.log("Parent selection")
@@ -260,7 +260,8 @@ Population.prototype.update = function() {
 	for (j = 0; j < this.size; j++) {
 		//console.log("j: " + j)
 		//console.log("size: " + this.size)
-		children[j] = this.mutation(children[j]);
+		var newChild2 = this.mutation(children[j]);
+		children[j].genome.update(newChild2.genome.random, newChild2.genome.greedy, newChild2.genome.human);
 	}
 	this.agents = children; //update population
 	console.log("End updating..")
