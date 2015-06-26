@@ -238,26 +238,29 @@ Population.prototype.update = function() {
 	//first parent selection, then create new children
 	var par = new Array(this.size);
 	var children = new Array(this.size);
+	for (i = 0; i < this.size; i = i+2) {
+		children[i] = new Agent(-1,-1,-1);
+	}
 	console.log("Parent selection")
 	par = this.parentselection();
 	console.log("Crossover")
 	for (i = 0; i < this.size; i = i+2) {
 		// if population size is an odd number, last child is copy of last parent
 		if ((this.size % 2) != 0 && i == (this.size-1)) {
-			children[i] = par[i];
+			children[i].genome = par[i].genome;
 			break;
 		}
 		//console.log("children = " + i + " and " + (i+1))
 		var newChildren = this.crossover(par[i],par[i+1]);
 		//console.log("new Children: " + newChildren)
-		children[i]   = newChildren[0];
-		children[i+1] = newChildren[1];
+		children[i].genome   = newChildren[0].genome;
+		children[i+1].genome = newChildren[1].genome;
 	}
 	console.log("Mutation")
 	for (j = 0; j < this.size; j++) {
 		//console.log("j: " + j)
 		//console.log("size: " + this.size)
-		children[j] = this.mutation(children[j]);
+		children[j].genome = this.mutation(children[j]).genome;
 	}
 	this.agents = children; //update population
 	console.log("End updating..")
