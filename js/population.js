@@ -199,9 +199,9 @@ Population.prototype.crossover = function(mother, father) {
 
 Population.prototype.mutation = function (agent) {
 	var probs = new Array(6);
-	var random = agent.Genome.random;
-	var greedy = agent.Genome.greedy;
-	var human = agent.Genome.human;
+	var random = agent.genome.random;
+	var greedy = agent.genome.greedy;
+	var human = agent.genome.human;
 	for (i = 0; i < 10; i++) {
 		probs[i] = Math.random();
 	}
@@ -224,7 +224,7 @@ Population.prototype.mutation = function (agent) {
 		else human = human - mutation_amount;
 	}
 	var normalization = random + greedy + human;
-	agent.Genome.update(random/normalization, greedy/normalization, human/normalization);
+	agent.genome.update(random/normalization, greedy/normalization, human/normalization);
 	return agent;
 };
 
