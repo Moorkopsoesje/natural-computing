@@ -35,6 +35,7 @@ Population.prototype.parentselection = function() {
 				var selection = new Array(t_size);
 				for (i = 0; i < t_size; i ++) {
 					selection[i] = this.agents[Math.round(Math.random() * this.size)];
+					//console.log(selection[i])
 				}
 				// picking the winner is dependent of t_size
 				// if t_size changes, then there are more options to pick
@@ -43,14 +44,14 @@ Population.prototype.parentselection = function() {
 				var total = 1;
 				for (i = 0; i < t_size; i++) {
 					// probability of choosing ith best individual
-					if (pick_prob >= (total-this.prototype.t_winner(i))) {
+					if (pick_prob >= (total-this.t_winner(i))) {
 						//choose ith best individual
-						parents[p] = selection[this.prototype.getWinner(selection,i)];
+						parents[p] = selection[this.getWinner(selection,i)];
 						break;
 					}
 					// for (i+1)th best individual, prob needs be between
 					// ith best and ith+(i+1)th best
-					else total = total-this.prototype.t_winner(i);
+					else total = total-this.t_winner(i);
 				}
 		}
 	}
@@ -60,15 +61,16 @@ Population.prototype.parentselection = function() {
 		var proportional_fitness = new Array(this.size);
 		// calculate accumulative fitness
 		for (i = 0; i < this.size; i++) {
-			total_fitness = total_fitness + this.agents[i].prototype.getFitness();
+			total_fitness = total_fitness + this.agents[i].fitness;
+			//console.log(this.agents[i].fitness);
 		}
 		// for each agent, calculate the proportion of total fitness
 		for (i = 0; i < this.size; i++) {
 			if (i == 0) {
-				proportional_fitness[i] = this.agents[i].prototype.getFitness()/total_fitness;
+				proportional_fitness[i] = this.agents[i].fitness/total_fitness;
 			}
 			// each proportion has its own unique range, so add up from previous
-			else proportional_fitness[i] = proportional_fitness[i-1] + this.agents[i].prototype.getFitness()/total_fitness;
+			else proportional_fitness[i] = proportional_fitness[i-1] + this.agents[i].fitness/total_fitness;
 		}
 		// for each parent, pick random nr between 0-1 and see which proportion it is
 		for (p = 0; p < this.size; p++) {
@@ -103,15 +105,24 @@ Population.prototype.getWinner = function(pool,best) {
 	var original = pool;
 	var orderfitness = new Array(t_size);
 	for (j = 0; j < t_size; j++) {
-		orderfitness[j] = pool[j].prototype.getFitness();
+		// Fast bug-fix, don't know if this the right solution.
+		if (pool[j] != null) {
+			orderfitness[j] = pool[j].fitness;
+		}
+		else {
+			orderfitness[j] = 0;
+		}
 	}
 	// sort fitness based on high first, low last
 	orderfitness.sort(function(a, b){return b-a});
 	for (k = 0; k < t_size; k++) {
 		// compare which original agent had the nth best fitness
-		if (orderfitness[best] == original[k].prototype.getFitness()){
-			// index of pool member with nth best fitness
-			return k;
+		// Quick bug-fix, don't know if it's the right thing to do.
+		if (original[k] != null) {
+			if (orderfitness[best] == original[k].fitness){
+				// index of pool member with nth best fitness
+				return k;
+			}
 		}
 	}
 	console.log("No corresponding agent to best fitness")
@@ -122,7 +133,7 @@ Population.prototype.getWinner = function(pool,best) {
 Takes two parents and with probability c_prob slices their genes
 and recombines them to make two children
 */
-Population.prototype.crossover(mother, father) {
+Population.prototype.crossover = function(mother, father) {
 	var children = new Array(2);
 	children[0] = mother; //first copy parents
 	children[1] = father;
@@ -130,7 +141,7 @@ Population.prototype.crossover(mother, father) {
 	var cross = Math.random();
 	var cross2 = Math.random();
 	//cross-over between all genes
-	if (cross < c_prob && cross2 < c_prob) {
+	if (cross < this.c_prob && cross2 < this.c_prob) {
 		 r = mother.Genome.random;
 		 g = father.Genome.greedy;
 		 h = mother.Genome.human;
@@ -139,7 +150,7 @@ Population.prototype.crossover(mother, father) {
 		 h2 = father.Genome.human;
 	}
 	//cross-over after first gene
-	else if (cross < c_prob) {
+	else if (cross < this.c_prob) {
 		r = mother.Genome.random;
 		g = father.Genome.greedy;
 		h = father.Genome.human;
@@ -148,7 +159,7 @@ Population.prototype.crossover(mother, father) {
 		h2 = mother.Genome.human;
 	}
 	//cross-over after second gene
-	else if (cross < c_prob2) {
+	else if (cross < this.c_prob2) {
 		r = mother.Genome.random;
 		g = mother.Genome.greedy;
 		h = father.Genome.human;
@@ -171,23 +182,31 @@ Population.prototype.crossover(mother, father) {
 	h2 = h2/norm2;
 	children[0].Genome.update(r,g,h);
 	children[1].Genome.update(r2,g2,h2);
-	return children[0], children[1];
-}
+	return [children[0], children[1]];
+};
 
 /** This function replaces the agents in the population by the children
 created through parent selection, cross-over and mutation
 */
 Population.prototype.update = function() {
+	console.log("Start updating..")
 	//update entire population
 	//first parent selection, then create new children
 	var par = new Array(this.size);
 	var children = new Array(this.size);
-	par = this.prototype.parentselection();
+	console.log("Parent selection")
+	par = this.parentselection();
+	console.log("Crossover")
 	for (i = 0; i < this.size; i+2) {
-		[children[i],children[i+1]] = this.prototype.crossover(par[i],par[i+1]);
+		//console.log("children = " + i + " and " + (i+1))
+		var newChildren = this.crossover(par[i],par[i+1]);
+		children[i]   = newChildren[0];
+		children[i+1] = newChildren[1];
 	}
+	console.log("Mutation")
 	for (i = 0; i < this.size; i++) {
-		children[i].Genome.prototype.mutation();
+		children[i].genome.mutation();
 	}
 	this.agents = children; //update population
+	console.log("End updating..")
 };

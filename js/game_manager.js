@@ -11,13 +11,16 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
   // Make population
-  var populationsize = 50;
+  var populationsize = 1;
   this.population = new Population(populationsize);
 
+  // Initialize fitness
+  this.fitnessscore = 0;
+  
   // Initialize strategy
   this.strategy = -1;
 
-  var iterations = 25;
+  var iterations = 10;
   
   this.evalalg(populationsize, iterations);
 
@@ -28,27 +31,34 @@ GameManager.prototype.evalalg = function(populationsize, iter) {
 	// Repeat
 	for (var k = 0 ; k < iter ; k++) {
 		console.log("Iteration " + (k+1))
+		//this.fitness = new Array(populationsize);
 		  // Each agent
 		  for (var j = 0 ; j < populationsize ; j++) {
+			  //console.log("agent " + (j+1))
 			  // Get Genome
 			  var agent = this.population.agents[j];
 			  this.genome = agent.genome
 			  //console.log("Genome: " + this.genome.random + ", " + this.genome.greedy + ", " + this.genome.human)
 			  //console.log("j = " + j)
 			  this.strategy = this.determineStrategy(this.genome);
-			  
+			  console.log("Strategy: " + this.strategy)
 			  // Get final fitness function
 			  if (this.strategy != -1) {
 				  this.setup(this.strategy);
 			  }
-			  this.fitnessweights();
+			  agent.fitness = this.fitnessweights();
+			  var test = this.fitnessweights();
+			  console.log("Fitness: " + test)
+			  this.restartWithoutSetup();
+			  console.log("Agent fitness: " + agent.fitness)
+			  console.log(this.grid)
 		  }
 	  // Adapt population based on:
 	  	// Crossover
 	  	// Mutation
 	  	// Parent selection
 		// this.population = this.population.update(); //?
-		this.population.update;
+		this.population.update();
 	}
 	console.log("Ended")
 };
@@ -78,6 +88,13 @@ GameManager.prototype.restart = function () {
   this.actuator.continueGame(); // Clear the game won/lost message
   lastmove = 0;
   this.setup();
+};
+
+//Restart the game
+GameManager.prototype.restartWithoutSetup = function () {
+  this.storageManager.clearGameState();
+  this.actuator.continueGame(); // Clear the game won/lost message
+  lastmove = 0;
 };
 
 // Keep playing after winning (allows going over 2048)
@@ -364,22 +381,21 @@ GameManager.prototype.positionsEqual = function (first, second) {
 
 GameManager.prototype.fitnessweights = function () {
 	// Highest number x. (2^x = value)
-	var x = Math.log2(this.storageManager.getBestScore());
+	var x = Math.log2(this.grid.highestScore());
 	// Amount of empty cells n.
 	var n = this.grid.amountAvailable();
-	
+	console.log("X: " + x + ", N: " + n)
 	return x + n;
 };
 
 GameManager.prototype.fitnessnoweights = function () {
 	// Highest number x. (value / 100 = x)
-	var x = this.storageManager.getBestScore() / 100;
+	var x = this.grid.highestScore() / 100;
 	// Amount of empty cells n.
 	var n = this.grid.amountAvailable();
 	
 	return x + n;
 };
-
 
 // Strategies //
 
@@ -548,6 +564,7 @@ GameManager.prototype.preferredDirection = function(optionA, optionB, optionC, o
 
 // Move tiles on the grid in the specified direction
 GameManager.prototype.movePossible = function (direction, run) {
+	//console.log(this.fitnessweights())
   //console.log("Direction is: " + direction)
   // 0: up, 1: right, 2: down, 3: left
   var self = this;

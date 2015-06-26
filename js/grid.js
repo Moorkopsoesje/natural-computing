@@ -132,15 +132,29 @@ Grid.prototype.amountAvailable = function () {
 }
 
 Grid.prototype.highestScore = function() {
+	console.log(this)
   var highscore = 0;
-  for (var x = 0; x < this.size; x++) {
+	
+	this.eachCell(function(x, y, tile) {
+		if(tile) {
+			if (tile.value > highscore) {
+				highscore = tile.value;
+			}
+		}
+	});
+	
+  /*for (var x = 0; x < this.size; x++) {
     for (var y = 0; y < this.size; y++) {
-      if (this.prototype.cellContent == null) {
+    	var cell = { x: x, y: y };
+    	//console.log("cell: " + cell)
+      if (this.cellContent(cell) == null) {
+      	//console.log("cell content: null")
       }
-      else if (this.prototype.cellContent() > highscore) {
-        highscore = this.prototype.cellContent();
+      else if (this.cellContent(cell) > highscore) {
+      	console.log("cell content2: " + this.cellContent(cell))
+        highscore = this.cellContent(cell);
       }
     }
-  }
+  }*/
   return highscore;
 }

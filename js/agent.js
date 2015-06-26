@@ -4,6 +4,9 @@ function Agent(genome) {
 	this.highscore = 0;
 	this.emptycells = 14;
 	this.amountmoves = 0;
+	
+	this.fitness = 0;
+	
 }
 
 Agent.prototype.update = function (grid) {
