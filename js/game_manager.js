@@ -400,7 +400,7 @@ GameManager.prototype.fitnessweights = function () {
 	var n = this.grid.amountAvailable();
 	// Depth of path
 	var d = this.depth / this.depthnormalizer;
-	return x + n;
+	return x + n + d;
 };
 
 GameManager.prototype.fitnessnoweights = function () {
