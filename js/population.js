@@ -247,20 +247,21 @@ Population.prototype.update = function() {
 	for (i = 0; i < this.size; i = i+2) {
 		// if population size is an odd number, last child is copy of last parent
 		if ((this.size % 2) != 0 && i == (this.size-1)) {
-			children[i].genome = par[i].genome;
+			children[i].genome.update(par[i].genome.random, par[i].genome.greedy, par[i].genome.human);
 			break;
 		}
 		//console.log("children = " + i + " and " + (i+1))
 		var newChildren = this.crossover(par[i],par[i+1]);
 		//console.log("new Children: " + newChildren)
-		children[i].genome   = newChildren[0].genome;
-		children[i+1].genome = newChildren[1].genome;
+		children[i].genome.update(newChildren[0].genome.random, newChildren[0].genome.greedy, newChildren[0].genome.human);
+		children[i+1].genome.update(newChildren[1].genome.random, newChildren[1].genome.greedy, newChildren[1].genome.human);
 	}
 	console.log("Mutation")
 	for (j = 0; j < this.size; j++) {
 		//console.log("j: " + j)
 		//console.log("size: " + this.size)
-		children[j].genome = this.mutation(children[j]).genome;
+		var newChild2 = this.mutation(children[j]);
+		children[j].genome.update(newChild2.genome.random, newChild2.genome.greedy, newChild2.human);
 	}
 	this.agents = children; //update population
 	console.log("End updating..")
