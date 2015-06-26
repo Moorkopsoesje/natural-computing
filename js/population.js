@@ -136,9 +136,9 @@ Takes two parents and with probability c_prob slices their genes
 and recombines them to make two children
 */
 Population.prototype.crossover = function(mother, father) {
-	console.log("Start crossover")
-	console.log("Mother: " + mother.genome.random + ", " + mother.genome.greedy + ",  " + mother.genome.human)
-	console.log("Father: " + father.genome.random + ", " + father.genome.greedy + ",  " + father.genome.human)
+	//console.log("Start crossover..")
+	//console.log("Mother: " + mother.genome.random + ", " + mother.genome.greedy + ",  " + mother.genome.human)
+	//console.log("Father: " + father.genome.random + ", " + father.genome.greedy + ",  " + father.genome.human)
 	var children = new Array(2);
 	children[0] = mother; //first copy parents
 	children[1] = father;
@@ -174,9 +174,9 @@ Population.prototype.crossover = function(mother, father) {
 	}
 	//no cross-over, children are same as parents
 	else {
-		//console.log("end crossover")
-		console.log("children[0]: " + children[0].genome.random + ", " + children[0].genome.greedy + ",  " + children[0].genome.human)
-		console.log("children[1]: " + children[1].genome.random + ", " + children[1].genome.greedy + ",  " + children[1].genome.human)
+		//console.log("End crossover..")
+		//console.log("children[0]: " + children[0].genome.random + ", " + children[0].genome.greedy + ",  " + children[0].genome.human)
+		//console.log("children[1]: " + children[1].genome.random + ", " + children[1].genome.greedy + ",  " + children[1].genome.human)
 		return [children[0], children[1]];
 	}
 	//normalize so genome adds up to 1 again;
@@ -191,8 +191,8 @@ Population.prototype.crossover = function(mother, father) {
 	children[0].genome.update(r,g,h);
 	children[1].genome.update(r2,g2,h2);
 	//console.log("end crossover")
-	console.log("children[0]: " + children[0].genome.random + ", " + children[0].genome.greedy + ",  " + children[0].genome.human)
-	console.log("children[1]: " + children[1].genome.random + ", " + children[1].genome.greedy + ",  " + children[1].genome.human)
+	//console.log("children[0]: " + children[0].genome.random + ", " + children[0].genome.greedy + ",  " + children[0].genome.human)
+	//console.log("children[1]: " + children[1].genome.random + ", " + children[1].genome.greedy + ",  " + children[1].genome.human)
 
 	return [children[0], children[1]];
 };
@@ -247,15 +247,17 @@ Population.prototype.update = function() {
 			children[i] = par[i];
 			break;
 		}
-		console.log("children = " + i + " and " + (i+1))
+		//console.log("children = " + i + " and " + (i+1))
 		var newChildren = this.crossover(par[i],par[i+1]);
-		console.log("new Children: " + newChildren)
+		//console.log("new Children: " + newChildren)
 		children[i]   = newChildren[0];
 		children[i+1] = newChildren[1];
 	}
 	console.log("Mutation")
-	for (i = 0; i < this.size; i++) {
-		children[i] = this.mutation(children[i]);
+	for (j = 0; j < this.size; j++) {
+		//console.log("j: " + j)
+		//console.log("size: " + this.size)
+		children[j] = this.mutation(children[j]);
 	}
 	this.agents = children; //update population
 	console.log("End updating..")

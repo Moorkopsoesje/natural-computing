@@ -11,7 +11,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
   // Make population
-  var populationsize = 2;
+  var populationsize = 30;
   this.population = new Population(populationsize);
 
   // Initialize fitness
@@ -20,7 +20,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   // Initialize strategy
   this.strategy = -1;
 
-  var iterations = 10;
+  var iterations = 20;
   
   this.evalalg(populationsize, iterations);
 
@@ -68,17 +68,17 @@ GameManager.prototype.determineStrategy = function(genome) {
 	  // Pick strategy according to genome
 	  var strat = -1;
 	  var rand = Math.random();
-	  console.log("Random: " + genome.random + ", Greedy: " + genome.greedy + ", Human: " + genome.human)
+	  //console.log("Random: " + genome.random + ", Greedy: " + genome.greedy + ", Human: " + genome.human)
 	  if (rand < genome.random) {
-		  console.log("Test1")
+		  //console.log("Test1")
 		  strat = 0;
 	  }
 	  else if (rand > genome.random && rand < (genome.random + genome.greedy)) {
-		  console.log("Test2")
+		  //console.log("Test2")
 		  strat = 1;
 	  }
 	  else if (rand > (genome.random + genome.greedy)) {
-		  console.log("Test3")
+		  //console.log("Test3")
 		  strat = 2;
 	  }
 	  else {
