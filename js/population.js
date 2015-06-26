@@ -239,7 +239,7 @@ Population.prototype.update = function() {
 	var par = new Array(this.size);
 	var children = new Array(this.size);
 	for (i = 0; i < this.size; i = i+2) {
-		children[i] = new Agent(-1,-1,-1);
+		children[i] = new Agent(new Genome(-1,-1,-1));
 	}
 	console.log("Parent selection")
 	par = this.parentselection();
