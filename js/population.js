@@ -240,7 +240,7 @@ Population.prototype.update = function() {
 	var children = new Array(this.size);
 	console.log("Parent selection")
 	par = this.parentselection();
-	console.log("Crossover " + this.size)
+	console.log("Crossover")
 	for (i = 0; i < this.size; i = i+2) {
 		// if population size is an odd number, last child is copy of last parent
 		if ((this.size % 2) != 0 && i == (this.size-1)) {
@@ -253,8 +253,6 @@ Population.prototype.update = function() {
 		children[i]   = newChildren[0];
 		children[i+1] = newChildren[1];
 	}
-
-	// TODO: Find problem with genome updates in mutation
 	console.log("Mutation")
 	for (i = 0; i < this.size; i++) {
 		children[i] = this.mutation(children[i]);
