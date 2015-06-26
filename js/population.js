@@ -238,7 +238,7 @@ Population.prototype.update = function() {
 	//first parent selection, then create new children
 	var par = new Array(this.size);
 	var children = new Array(this.size);
-	for (i = 0; i < this.size; i = i++) {
+	for (i = 0; i < this.size; i++) {
 		children[i] = new Agent(new Genome(-1,-1,-1));
 	}
 	console.log("Parent selection")
