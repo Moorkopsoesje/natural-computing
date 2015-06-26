@@ -11,7 +11,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
   // Make population
-  var populationsize = 10;
+  var populationsize = 30;
   this.population = new Population(populationsize);
 
   // Initialize fitness
@@ -23,36 +23,44 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   
   // Initialize strategy
   this.strategy = -1;
+  
+  // Initialize highScore, genomeHighestScore, depthHighestScore
+  this.highScore = 0;
+  this.genomeHighestScore = new Genome(-1,-1,-1);
+  this.depthHighestScore = 0;
 
-  var iterations = 7;
+  var iterations = 25;
   
   this.evalalg(populationsize, iterations);
 
 }
 
 GameManager.prototype.evalalg = function(populationsize, iter) {
-	console.log("Start Running..")
+	////////console.log("Start Running..")
 	// Repeat
 	for (var k = 0 ; k < iter ; k++) {
-		console.log("Iteration " + (k+1))
+		////////console.log("Iteration " + (k+1))
 		//this.fitness = new Array(populationsize);
 		  // Each agent
 		  for (var j = 0 ; j < populationsize ; j++) {
 			  this.restartWithoutSetup();
-			  console.log("agent " + (j+1));
+			  ////////console.log("agent " + (j+1));
 			  // Get Genome
 			  var agent = this.population.agents[j];
 			  this.genome = agent.genome;
-			  console.log("Genome: " + this.genome.random + ", " + this.genome.greedy + ", " + this.genome.human);
+			  ////////console.log("Genome: " + this.genome.random + ", " + this.genome.greedy + ", " + this.genome.human);
 			  //console.log("j = " + j)
 			  this.strategy = this.determineStrategy(this.genome);
-			  console.log("Strategy: " + this.strategy);
+			  
+			  // Mooie output voor visualisaties: nr_agent - iteratie - genome.random - genome.greedy - genome.human
+			  console.log((j+1) + "," + (k+1) + "," + this.genome.random + "," + this.genome.greedy + "," + this.genome.human)
+			  
 			  // Get final fitness function
 			  if (this.strategy != -1) {
-				  console.log("Start setup..")
+				  ////////console.log("Start setup..")
 				  this.setup(this.strategy);
-				  agent.fitness = this.fitnessweights();
-				  var test = this.fitnessweights();
+				  agent.fitness = this.fitnessnoweights();
+				  //var test = this.fitnessweights();
 				  //console.log("Fitness: " + test)
 				  //console.log("Agent fitness: " + agent.fitness)
 				  //console.log(this.grid)
@@ -65,6 +73,7 @@ GameManager.prototype.evalalg = function(populationsize, iter) {
 		this.population.update();
 	}
 	console.log("Ended")
+	console.log("Highest score: " + this.highScore + ", depth: " + this.depthHighestScore + ", genome: (" + this.genomeHighestScore.random + ","+ this.genomeHighestScore.greedy + "," + this.genomeHighestScore.human + ")")
 };
 
 GameManager.prototype.determineStrategy = function(genome) {
@@ -399,6 +408,11 @@ GameManager.prototype.fitnessweights = function () {
 	var n = this.grid.amountAvailable();
 	// Depth of path
 	var d = this.depth / this.depthnormalizer;
+	if (2^x > this.highScore) {
+		this.highScore = 2^x;
+		this.depthHighestScore = 40*d;
+		this.genomeHighestScore = this.genome;
+	}
 	return x + n + d;
 };
 
@@ -407,8 +421,14 @@ GameManager.prototype.fitnessnoweights = function () {
 	var x = this.grid.highestScore() / 100;
 	// Amount of empty cells n.
 	var n = this.grid.amountAvailable();
-	
-	return x + n;
+	// Depth of path
+	var d = this.depth / this.depthnormalizer;
+	if (100 * x > this.highScore) {
+		this.highScore = 100 * x;
+		this.depthHighestScore = 40*d;
+		this.genomeHighestScore = this.genome;
+	}
+	return x + n + d;
 };
 
 // Strategies //
@@ -495,7 +515,7 @@ GameManager.prototype.fitness = function(direction) {
 	var moved = this.movePossible(direction, false);
 	// TODO: determine fitness function of current state
 	if (moved) {
-		var fitness = this.fitnessweights();
+		var fitness = this.fitnessnoweights();
 		//console.log(fitness)
 	}
 	if(!this.over) {

@@ -3,9 +3,11 @@ function Population(size) {
 	for (i = 0; i < size; i++) {
 		var prob = Math.random();
 		if (prob < 0.33) {
+		//if (prob < 0.5) {
 			this.agents[i] = new Agent(new Genome(1,0,0)); // 1/3rd has pure random strategy
 		}
 		else if (prob >= 0.33 && prob < 0.67) {
+		//else {
 			this.agents[i] = new Agent(new Genome(0,1,0)); // 1/3rd has pure greedy strategy
 		}
 		else this.agents[i] = new Agent(new Genome(0,0,1)); // 1/3rd has pure human strategy
@@ -127,7 +129,7 @@ Population.prototype.getWinner = function(pool,best) {
 			}
 		}
 	}
-	console.log("No corresponding agent to best fitness")
+	////////console.log("No corresponding agent to best fitness")
 	return 0;
 };
 
@@ -233,7 +235,7 @@ Population.prototype.mutation = function (agent) {
 created through parent selection, cross-over and mutation
 */
 Population.prototype.update = function() {
-	console.log("Start updating..")
+	////////console.log("Start updating..")
 	//update entire population
 	//first parent selection, then create new children
 	var par = new Array(this.size);
@@ -241,9 +243,9 @@ Population.prototype.update = function() {
 	for (i = 0; i < this.size; i++) {
 		children[i] = new Agent(new Genome(-1,-1,-1));
 	}
-	console.log("Parent selection")
+	////////console.log("Parent selection")
 	par = this.parentselection();
-	console.log("Crossover")
+	////////console.log("Crossover")
 	for (i = 0; i < this.size; i = i+2) {
 		// if population size is an odd number, last child is copy of last parent
 		if ((this.size % 2) != 0 && i == (this.size-1)) {
@@ -256,7 +258,7 @@ Population.prototype.update = function() {
 		children[i].genome.update(newChildren[0].genome.random, newChildren[0].genome.greedy, newChildren[0].genome.human);
 		children[i+1].genome.update(newChildren[1].genome.random, newChildren[1].genome.greedy, newChildren[1].genome.human);
 	}
-	console.log("Mutation")
+	////////console.log("Mutation")
 	for (j = 0; j < this.size; j++) {
 		//console.log("j: " + j)
 		//console.log("size: " + this.size)
@@ -264,5 +266,5 @@ Population.prototype.update = function() {
 		children[j].genome.update(newChild2.genome.random, newChild2.genome.greedy, newChild2.genome.human);
 	}
 	this.agents = children; //update population
-	console.log("End updating..")
+	////////console.log("End updating..")
 };
