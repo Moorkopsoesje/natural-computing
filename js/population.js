@@ -1,16 +1,14 @@
 function Population(size) {
 	this.agents = new Array(size);
-	this.genomes = new Array(size);
 	for (i = 0; i < size; i++) {
 		var prob = Math.random();
 		if (prob < 0.33) {
-			this.genomes[i] = new Genome(1,0,0); // 1/3rd has pure random strategy
+			this.agents[i] = new Agent(new Genome(1,0,0)); // 1/3rd has pure random strategy
 		}
 		else if (prob >= 0.33 && prob < 0.67) {
-			this.genomes[i] = new Genome(0,1,0); // 1/3rd has pure greedy strategy
+			this.agents[i] = new Agent(new Genome(0,1,0)); // 1/3rd has pure greedy strategy
 		}
-		else this.genomes[i] = new Genome(0,0,1); // 1/3rd has pure human strategy
-		this.agents[i] = new Agent(this.genomes[i]);
+		else this.agents[i] = new Agent(new Genome(0,0,1)); // 1/3rd has pure human strategy
 	}
 	this.pop = this.agents; // list of agents
 	this.size = size; // amount of agents
