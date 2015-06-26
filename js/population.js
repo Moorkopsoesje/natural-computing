@@ -193,7 +193,7 @@ Population.prototype.crossover = function(mother, father) {
 	//console.log("end crossover")
 	console.log("children[0]: " + children[0].genome.random + ", " + children[0].genome.greedy + ",  " + children[0].genome.human)
 	console.log("children[1]: " + children[1].genome.random + ", " + children[1].genome.greedy + ",  " + children[1].genome.human)
-	
+
 	return [children[0], children[1]];
 };
 
@@ -242,13 +242,18 @@ Population.prototype.update = function() {
 	par = this.parentselection();
 	console.log("Crossover " + this.size)
 	for (i = 0; i < this.size; i = i+2) {
+		// if population size is an odd number, last child is copy of last parent
+		if ((this.size % 2) != 0 && i == (this.size-1)) {
+			children[i] = par[i];
+			break;
+		}
 		console.log("children = " + i + " and " + (i+1))
 		var newChildren = this.crossover(par[i],par[i+1]);
 		console.log("new Children: " + newChildren)
 		children[i]   = newChildren[0];
 		children[i+1] = newChildren[1];
 	}
-	
+
 	// TODO: Find problem with genome updates in mutation
 	console.log("Mutation")
 	for (i = 0; i < this.size; i++) {
