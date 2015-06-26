@@ -21,6 +21,8 @@ var t_size = 10;
 // t_prob is probability of picking best from tournament, or second best, etc.
 var t_prob = 0.25;
 var c_prob = 0.1; //chance for cross-over
+var mutation_prob = 0.25;
+var mutation_amount = 0.05;
 
 
 /** Two algorithms for parent selection, either tournament or roulette wheel,
@@ -185,6 +187,36 @@ Population.prototype.crossover = function(mother, father) {
 	return [children[0], children[1]];
 };
 
+Population.prototype.mutation = function (agent) {
+	var probs = new Array(6);
+	var random, greedy, human;
+	for (i = 0; i < 10; i++) {
+		probs[i] = Math.random();
+	}
+	if (probs[0] <= mutation_prob) {
+		if (probs[1] < 0.5) {
+			random = agent.Genome.random + mutation_amount;
+		}
+		else random = agent.Genome.random - mutation_amount;
+	}
+	if (probs[2] <= mutation_prob) {
+		if (probs[3] < 0.5) {
+			greedy = agent.Genome.greedy + mutation_amount;
+		}
+		else greedy = agent.Genome.greedy - mutation_amount;
+	}
+	if (probs[4] <= mutation_prob) {
+		if (probs[5] < 0.5) {
+			human = agent.Genome.human + mutation_amount;
+		}
+		else human = agent.Genome.human - mutation_amount;
+	}
+	var normalization = random + alphabeta + human;
+	agent.Genome.update(random/normalization, greedy/normalization, human/normalization);
+	return agent;
+};
+
+
 /** This function replaces the agents in the population by the children
 created through parent selection, cross-over and mutation
 */
@@ -205,7 +237,7 @@ Population.prototype.update = function() {
 	}
 	console.log("Mutation")
 	for (i = 0; i < this.size; i++) {
-		children[i].genome.mutation();
+		children[i] = this.mutation(children[i]);
 	}
 	this.agents = children; //update population
 	console.log("End updating..")
