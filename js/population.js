@@ -199,29 +199,31 @@ Population.prototype.crossover = function(mother, father) {
 
 Population.prototype.mutation = function (agent) {
 	var probs = new Array(6);
-	var random, greedy, human;
+	var random = agent.Genome.random;
+	var greedy = agent.Genome.greedy;
+	var human = agent.Genome.human;
 	for (i = 0; i < 10; i++) {
 		probs[i] = Math.random();
 	}
 	if (probs[0] <= mutation_prob) {
 		if (probs[1] < 0.5) {
-			random = agent.Genome.random + mutation_amount;
+			random = random + mutation_amount;
 		}
-		else random = agent.Genome.random - mutation_amount;
+		else random = random - mutation_amount;
 	}
 	if (probs[2] <= mutation_prob) {
 		if (probs[3] < 0.5) {
-			greedy = agent.Genome.greedy + mutation_amount;
+			greedy = greedy + mutation_amount;
 		}
-		else greedy = agent.Genome.greedy - mutation_amount;
+		else greedy = greedy - mutation_amount;
 	}
 	if (probs[4] <= mutation_prob) {
 		if (probs[5] < 0.5) {
-			human = agent.Genome.human + mutation_amount;
+			human = human + mutation_amount;
 		}
-		else human = agent.Genome.human - mutation_amount;
+		else human = human - mutation_amount;
 	}
-	var normalization = random + alphabeta + human;
+	var normalization = random + greedy + human;
 	agent.Genome.update(random/normalization, greedy/normalization, human/normalization);
 	return agent;
 };
