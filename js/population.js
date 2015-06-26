@@ -206,19 +206,19 @@ Population.prototype.mutation = function (agent) {
 		probs[i] = Math.random();
 	}
 	if (probs[0] <= mutation_prob) {
-		if (probs[1] < 0.5) {
+		if (probs[1] < 0.5 || (random - mutation_amount < 0)) {
 			random = random + mutation_amount;
 		}
 		else random = random - mutation_amount;
 	}
 	if (probs[2] <= mutation_prob) {
-		if (probs[3] < 0.5) {
+		if (probs[3] < 0.5 || (greedy - mutation_amount < 0)) {
 			greedy = greedy + mutation_amount;
 		}
 		else greedy = greedy - mutation_amount;
 	}
 	if (probs[4] <= mutation_prob) {
-		if (probs[5] < 0.5) {
+		if (probs[5] < 0.5 || (human - mutation_amount < 0)) {
 			human = human + mutation_amount;
 		}
 		else human = human - mutation_amount;
