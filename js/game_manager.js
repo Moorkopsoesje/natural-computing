@@ -11,7 +11,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
   // Make population
-  var populationsize = 30;
+  var populationsize = 10;
   this.population = new Population(populationsize);
 
   // Initialize fitness
@@ -24,7 +24,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   // Initialize strategy
   this.strategy = -1;
 
-  var iterations = 20;
+  var iterations = 7;
   
   this.evalalg(populationsize, iterations);
 
@@ -38,6 +38,7 @@ GameManager.prototype.evalalg = function(populationsize, iter) {
 		//this.fitness = new Array(populationsize);
 		  // Each agent
 		  for (var j = 0 ; j < populationsize ; j++) {
+			  this.restartWithoutSetup();
 			  console.log("agent " + (j+1));
 			  // Get Genome
 			  var agent = this.population.agents[j];
@@ -53,11 +54,9 @@ GameManager.prototype.evalalg = function(populationsize, iter) {
 				  agent.fitness = this.fitnessweights();
 				  var test = this.fitnessweights();
 				  //console.log("Fitness: " + test)
-				  this.restartWithoutSetup();
 				  //console.log("Agent fitness: " + agent.fitness)
 				  //console.log(this.grid)
 			  }
-
 		  }
 	  // Adapt population based on:
 	  	// Crossover
@@ -88,6 +87,7 @@ GameManager.prototype.determineStrategy = function(genome) {
 	  else {
 		  console.log("Should not come here");
 	  }
+	//console.log("determineStrategy " + strat)
 	  return strat;
 }
 
@@ -166,7 +166,7 @@ GameManager.prototype.addRandomTile = function () {
 
 // Sends the updated grid to the actuator
 GameManager.prototype.actuate = function (run, strat) {
-	
+	//console.log("determined strategy: " + strat)
 	var mapstrategy = {
 		    0: "random",
 		    1: "greedy",
@@ -212,7 +212,6 @@ GameManager.prototype.actuate = function (run, strat) {
 		  direction = this.human();
 	  }
 	  this.depth = this.depth + 1;
-	  console.log(this.depth)
   }
   
 };
@@ -638,7 +637,8 @@ GameManager.prototype.movePossible = function (direction, run) {
     if (!this.movesAvailable()) {
       this.over = true; // Game over!
     }
-
+    
+    this.strategy = this.determineStrategy(this.genome);
     this.actuate(run, this.strategy);
   }
   
