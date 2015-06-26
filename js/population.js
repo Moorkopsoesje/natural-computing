@@ -260,8 +260,7 @@ Population.prototype.update = function() {
 	for (j = 0; j < this.size; j++) {
 		//console.log("j: " + j)
 		//console.log("size: " + this.size)
-		var newChild2 = this.mutation(children[j]);
-		children[j].genome.update(newChild2.genome.random, newChild2.genome.greedy, newChild2.human);
+		children[j] = this.mutation(children[j]);
 	}
 	this.agents = children; //update population
 	console.log("End updating..")
