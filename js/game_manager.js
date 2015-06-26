@@ -11,7 +11,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
   // Make population
-  var populationsize = 1;
+  var populationsize = 2;
   this.population = new Population(populationsize);
 
   // Initialize fitness
@@ -34,30 +34,31 @@ GameManager.prototype.evalalg = function(populationsize, iter) {
 		//this.fitness = new Array(populationsize);
 		  // Each agent
 		  for (var j = 0 ; j < populationsize ; j++) {
-			  //console.log("agent " + (j+1))
+			  console.log("agent " + (j+1));
 			  // Get Genome
 			  var agent = this.population.agents[j];
-			  this.genome = agent.genome
-			  //console.log("Genome: " + this.genome.random + ", " + this.genome.greedy + ", " + this.genome.human)
+			  this.genome = agent.genome;
+			  console.log("Genome: " + this.genome.random + ", " + this.genome.greedy + ", " + this.genome.human);
 			  //console.log("j = " + j)
 			  this.strategy = this.determineStrategy(this.genome);
-			  console.log("Strategy: " + this.strategy)
+			  console.log("Strategy: " + this.strategy);
 			  // Get final fitness function
 			  if (this.strategy != -1) {
+				  console.log("Start setup..")
 				  this.setup(this.strategy);
+				  agent.fitness = this.fitnessweights();
+				  var test = this.fitnessweights();
+				  //console.log("Fitness: " + test)
+				  this.restartWithoutSetup();
+				  //console.log("Agent fitness: " + agent.fitness)
+				  //console.log(this.grid)
 			  }
-			  agent.fitness = this.fitnessweights();
-			  var test = this.fitnessweights();
-			  console.log("Fitness: " + test)
-			  this.restartWithoutSetup();
-			  console.log("Agent fitness: " + agent.fitness)
-			  console.log(this.grid)
+
 		  }
 	  // Adapt population based on:
 	  	// Crossover
 	  	// Mutation
 	  	// Parent selection
-		// this.population = this.population.update(); //?
 		this.population.update();
 	}
 	console.log("Ended")
@@ -67,13 +68,17 @@ GameManager.prototype.determineStrategy = function(genome) {
 	  // Pick strategy according to genome
 	  var strat = -1;
 	  var rand = Math.random();
+	  console.log("Random: " + genome.random + ", Greedy: " + genome.greedy + ", Human: " + genome.human)
 	  if (rand < genome.random) {
+		  console.log("Test1")
 		  strat = 0;
 	  }
 	  else if (rand > genome.random && rand < (genome.random + genome.greedy)) {
+		  console.log("Test2")
 		  strat = 1;
 	  }
 	  else if (rand > (genome.random + genome.greedy)) {
+		  console.log("Test3")
 		  strat = 2;
 	  }
 	  else {
@@ -161,7 +166,7 @@ GameManager.prototype.actuate = function (run, strat) {
 		    2: "human"
 		  };
 	
-	var strategy = mapstrategy[strat];
+	var str = mapstrategy[strat];
 	
   if (this.storageManager.getBestScore() < this.score) {
     this.storageManager.setBestScore(this.score);
@@ -186,17 +191,17 @@ GameManager.prototype.actuate = function (run, strat) {
   
   if(run && !this.over) {
 	  // Run (random):
-	  if (strategy == "random") {
+	  if (str == "random") {
 		  direction = this.random();  
 	  }
 	  
 	  // Run (greedy):
-	  if (strategy == "greedy") {
+	  if (str == "greedy") {
 		  direction = this.greedy();
 	  }
 	  
 	  // Run (human):
-	  if (strategy == "human") {
+	  if (str == "human") {
 		  direction = this.human();
 	  }
   }
@@ -384,7 +389,7 @@ GameManager.prototype.fitnessweights = function () {
 	var x = Math.log2(this.grid.highestScore());
 	// Amount of empty cells n.
 	var n = this.grid.amountAvailable();
-	console.log("X: " + x + ", N: " + n)
+	//console.log("X: " + x + ", N: " + n)
 	return x + n;
 };
 
@@ -624,7 +629,7 @@ GameManager.prototype.movePossible = function (direction, run) {
       this.over = true; // Game over!
     }
 
-    this.actuate(run, this.determineStrategy(this.genome));
+    this.actuate(run, this.strategy);
   }
   
   return moved;

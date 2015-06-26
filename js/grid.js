@@ -132,7 +132,7 @@ Grid.prototype.amountAvailable = function () {
 }
 
 Grid.prototype.highestScore = function() {
-	console.log(this)
+	//console.log(this)
   var highscore = 0;
 	
 	this.eachCell(function(x, y, tile) {

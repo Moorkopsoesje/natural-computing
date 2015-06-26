@@ -136,6 +136,9 @@ Takes two parents and with probability c_prob slices their genes
 and recombines them to make two children
 */
 Population.prototype.crossover = function(mother, father) {
+	console.log("Start crossover")
+	console.log("Mother: " + mother.genome.random + ", " + mother.genome.greedy + ",  " + mother.genome.human)
+	console.log("Father: " + father.genome.random + ", " + father.genome.greedy + ",  " + father.genome.human)
 	var children = new Array(2);
 	children[0] = mother; //first copy parents
 	children[1] = father;
@@ -144,34 +147,37 @@ Population.prototype.crossover = function(mother, father) {
 	var cross2 = Math.random();
 	//cross-over between all genes
 	if (cross < this.c_prob && cross2 < this.c_prob) {
-		 r = mother.Genome.random;
-		 g = father.Genome.greedy;
-		 h = mother.Genome.human;
-		 r2 = father.Genome.random;
-		 g2 = mother.Genome.greedy;
-		 h2 = father.Genome.human;
+		 r = mother.genome.random;
+		 g = father.genome.greedy;
+		 h = mother.genome.human;
+		 r2 = father.genome.random;
+		 g2 = mother.genome.greedy;
+		 h2 = father.genome.human;
 	}
 	//cross-over after first gene
 	else if (cross < this.c_prob) {
-		r = mother.Genome.random;
-		g = father.Genome.greedy;
-		h = father.Genome.human;
-		r2 = father.Genome.random;
-		g2 = mother.Genome.greedy;
-		h2 = mother.Genome.human;
+		r = mother.genome.random;
+		g = father.genome.greedy;
+		h = father.genome.human;
+		r2 = father.genome.random;
+		g2 = mother.genome.greedy;
+		h2 = mother.genome.human;
 	}
 	//cross-over after second gene
 	else if (cross < this.c_prob2) {
-		r = mother.Genome.random;
-		g = mother.Genome.greedy;
-		h = father.Genome.human;
-		r2 = father.Genome.random;
-		g2 = father.Genome.greedy;
-		h2 = mother.Genome.human;
+		r = mother.genome.random;
+		g = mother.genome.greedy;
+		h = father.genome.human;
+		r2 = father.genome.random;
+		g2 = father.genome.greedy;
+		h2 = mother.genome.human;
 	}
 	//no cross-over, children are same as parents
 	else {
-		return children[0], children[1];
+		//console.log("end crossover")
+		console.log("children[0]: " + children[0].genome.random + ", " + children[0].genome.greedy + ",  " + children[0].genome.human)
+		console.log("children[1]: " + children[1].genome.random + ", " + children[1].genome.greedy + ",  " + children[1].genome.human)
+		return [children[0], children[1]];
 	}
 	//normalize so genome adds up to 1 again;
 	norm = r + g + h;
@@ -182,8 +188,12 @@ Population.prototype.crossover = function(mother, father) {
 	r2 = r2/norm2;
 	g2 = g2/norm2;
 	h2 = h2/norm2;
-	children[0].Genome.update(r,g,h);
-	children[1].Genome.update(r2,g2,h2);
+	children[0].genome.update(r,g,h);
+	children[1].genome.update(r2,g2,h2);
+	//console.log("end crossover")
+	console.log("children[0]: " + children[0].genome.random + ", " + children[0].genome.greedy + ",  " + children[0].genome.human)
+	console.log("children[1]: " + children[1].genome.random + ", " + children[1].genome.greedy + ",  " + children[1].genome.human)
+	
 	return [children[0], children[1]];
 };
 
@@ -228,13 +238,16 @@ Population.prototype.update = function() {
 	var children = new Array(this.size);
 	console.log("Parent selection")
 	par = this.parentselection();
-	console.log("Crossover")
-	for (i = 0; i < this.size; i+2) {
-		//console.log("children = " + i + " and " + (i+1))
+	console.log("Crossover " + this.size)
+	for (i = 0; i < this.size; i = i+2) {
+		console.log("children = " + i + " and " + (i+1))
 		var newChildren = this.crossover(par[i],par[i+1]);
+		console.log("new Children: " + newChildren)
 		children[i]   = newChildren[0];
 		children[i+1] = newChildren[1];
 	}
+	
+	// TODO: Find problem with genome updates in mutation
 	console.log("Mutation")
 	for (i = 0; i < this.size; i++) {
 		children[i] = this.mutation(children[i]);
