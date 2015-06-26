@@ -131,30 +131,30 @@ Population.prototype.crossover(mother, father) {
 	var cross2 = Math.random();
 	//cross-over between all genes
 	if (cross < c_prob && cross2 < c_prob) {
-		 r = mother.Genome.getRandom();
-		 g = father.Genome.getGreedy();
-		 h = mother.Genome.getHuman();
-		 r2 = father.Genome.getRandom();
-		 g2 = mother.Genome.getGreedy();
-		 h2 = father.Genome.getHuman();
+		 r = mother.Genome.random;
+		 g = father.Genome.greedy;
+		 h = mother.Genome.human;
+		 r2 = father.Genome.random;
+		 g2 = mother.Genome.greedy;
+		 h2 = father.Genome.human;
 	}
 	//cross-over after first gene
 	else if (cross < c_prob) {
-		r = mother.Genome.getRandom();
-		g = father.Genome.getGreedy();
-		h = father.Genome.getHuman();
-		r2 = father.Genome.random();
-		g2 = mother.Genome.getGreedy();
-		h2 = mother.Genome.getHuman();
+		r = mother.Genome.random;
+		g = father.Genome.greedy;
+		h = father.Genome.human;
+		r2 = father.Genome.random;
+		g2 = mother.Genome.greedy;
+		h2 = mother.Genome.human;
 	}
 	//cross-over after second gene
 	else if (cross < c_prob2) {
-		r = mother.Genome.getRandom();
-		g = mother.Genome.getGreedy();
-		h = father.Genome.getHuman();
-		r2 = father.Genome.getRandom();
-		g2 = father.Genome.getGreedy();
-		h2 = mother.Genome.getHuman();
+		r = mother.Genome.random;
+		g = mother.Genome.greedy;
+		h = father.Genome.human;
+		r2 = father.Genome.random;
+		g2 = father.Genome.greedy;
+		h2 = mother.Genome.human;
 	}
 	//no cross-over, children are same as parents
 	else {
